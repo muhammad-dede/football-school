@@ -9,6 +9,7 @@ import {
 import { Link, usePage } from "@inertiajs/vue3";
 
 const props = defineProps({
+    groupLabel: String,
     items: Array,
 });
 
@@ -17,12 +18,14 @@ const page = usePage();
 
 <template>
     <SidebarGroup class="px-2 py-0">
-        <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroupLabel v-if="groupLabel">{{
+            groupLabel
+        }}</SidebarGroupLabel>
         <SidebarMenu>
             <SidebarMenuItem v-for="item in props.items" :key="item.title">
                 <SidebarMenuButton
                     as-child
-                    :is-active="item.href === page.url"
+                    :is-active="page.url.startsWith(item.href)"
                     :tooltip="item.title"
                 >
                     <Link :href="item.href">

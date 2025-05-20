@@ -12,15 +12,22 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@inertiajs/vue3";
-import { BookOpen, Folder, LayoutGrid } from "lucide-vue-next";
+import { BookOpen, Folder, LayoutGrid, ShieldCheck } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 
-// Array objek tanpa deklarasi tipe TypeScript
-const mainNavItems = [
+const dashboardNavItems = [
     {
         title: "Dashboard",
         href: "/dashboard",
         icon: LayoutGrid,
+    },
+];
+
+const manageUserNavItems = [
+    {
+        title: "Role",
+        href: "/role",
+        icon: ShieldCheck,
     },
 ];
 
@@ -53,7 +60,11 @@ const footerNavItems = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="dashboardNavItems" />
+            <NavMain
+                group-label="Kelola Pengguna"
+                :items="manageUserNavItems"
+            />
         </SidebarContent>
 
         <SidebarFooter>

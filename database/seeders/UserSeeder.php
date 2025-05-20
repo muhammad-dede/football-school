@@ -16,10 +16,16 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // Role
             ['guard_name' => 'web', 'name' => 'role-index'],
             ['guard_name' => 'web', 'name' => 'role-create'],
             ['guard_name' => 'web', 'name' => 'role-edit'],
             ['guard_name' => 'web', 'name' => 'role-delete'],
+            // User
+            ['guard_name' => 'web', 'name' => 'user-index'],
+            ['guard_name' => 'web', 'name' => 'user-create'],
+            ['guard_name' => 'web', 'name' => 'user-edit'],
+            ['guard_name' => 'web', 'name' => 'user-delete'],
         ];
 
         foreach ($permissions as $key => $value) {
@@ -41,6 +47,10 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('role-create');
                 $role->givePermissionTo('role-edit');
                 $role->givePermissionTo('role-delete');
+                $role->givePermissionTo('user-index');
+                $role->givePermissionTo('user-create');
+                $role->givePermissionTo('user-edit');
+                $role->givePermissionTo('user-delete');
             }
         }
 
