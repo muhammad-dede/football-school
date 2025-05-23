@@ -41,6 +41,8 @@ import {
 
 import SearchInput from "@/components/SearchInput.vue";
 import FilterControl from "@/components/FilterControl.vue";
+import MainContentHeader from "@/components/MainContentHeader.vue";
+import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
 
 const props = defineProps({
     roles: Object,
@@ -104,15 +106,15 @@ const destroy = () => {
     <Head title="Role" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-bold">Data Role</h1>
+            <MainContentHeader>
+                <MainContentHeaderTitle title="Data Role" />
                 <Link
                     :href="route('role.create')"
                     :class="buttonVariants({ variant: 'default' })"
                 >
                     <SquarePlus class="w-4 h-4" />Tambah
                 </Link>
-            </div>
+            </MainContentHeader>
             <div class="flex justify-between items-center gap-4 mb-4">
                 <SearchInput v-model="search" />
                 <FilterControl
@@ -178,7 +180,7 @@ const destroy = () => {
                                                         )
                                                     "
                                                 >
-                                                    Edit
+                                                    Ubah
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem

@@ -2,14 +2,7 @@
 import AppLayout from "@/layouts/AppLayout.vue";
 import { Head, useForm, Link } from "@inertiajs/vue3";
 import MainContent from "@/components/MainContent.vue";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card/index";
+import { Card, CardContent, CardFooter } from "@/components/ui/card/index";
 import { Label } from "@/components/ui/label/index";
 import { Input } from "@/components/ui/input/index";
 import { Checkbox } from "@/components/ui/checkbox/index";
@@ -17,6 +10,8 @@ import InputError from "@/components/InputError.vue";
 import { LoaderCircle } from "lucide-vue-next";
 import { Button, buttonVariants } from "@/components/ui/button/index";
 import { ref, watch } from "vue";
+import MainContentHeader from "@/components/MainContentHeader.vue";
+import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
 
 const props = defineProps({
     permissions: Object,
@@ -24,18 +19,9 @@ const props = defineProps({
 });
 
 const breadcrumbs = [
-    {
-        title: "Dashboard",
-        href: "/dashboard",
-    },
-    {
-        title: "Role",
-        href: "/role",
-    },
-    {
-        title: "Ubah",
-        href: "/role/edit",
-    },
+    { title: "Dashboard", href: "/dashboard" },
+    { title: "Role", href: "/role" },
+    { title: "Ubah", href: "/role/edit" },
 ];
 
 const form = useForm({
@@ -73,12 +59,11 @@ const submit = () => {
     <Head title="Ubah Role" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
+            <MainContentHeader>
+                <MainContentHeaderTitle title="Ubah Role" />
+            </MainContentHeader>
             <form @submit.prevent="submit">
                 <Card>
-                    <CardHeader>
-                        <CardTitle>Ubah Role</CardTitle>
-                        <CardDescription>Ubah Data Role</CardDescription>
-                    </CardHeader>
                     <CardContent>
                         <div class="grid grid-cols-2 mb-4">
                             <div class="grid gap-2">
