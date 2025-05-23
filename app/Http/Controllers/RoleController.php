@@ -14,18 +14,26 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request->search;
+        $per_page = $request->per_page ?? "5";
+        $filter = $request->filter ?? 'desc';
+
         $roles = Role::query()
             ->withCount('permissions')
-            ->when($request, function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->search . '%');
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
             })
-            ->latest()
-            ->paginate(5)
+            ->when($filter, function ($query) use ($filter) {
+                $query->orderBy('created_at', $filter);
+            })
+            ->paginate($per_page)
             ->withQueryString();
 
         return Inertia::render('role/Index', [
             'roles' => $roles,
-            'search_term' => $request->search,
+            'search_term' => $search,
+            'per_page_term' => $per_page,
+            'filter_term' => $filter,
         ]);
     }
 
