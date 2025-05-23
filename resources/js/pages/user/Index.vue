@@ -6,15 +6,9 @@ import { debounce } from "lodash";
 import AppLayout from "@/layouts/AppLayout.vue";
 import MainContent from "@/components/MainContent.vue";
 import PaginationLinks from "@/components/PaginationLinks.vue";
-
 import { Card, CardContent } from "@/components/ui/card/index";
 import { Button, buttonVariants } from "@/components/ui/button/index";
-import {
-    SquarePlus,
-    Captions,
-    ShieldUser,
-    MoreHorizontal,
-} from "lucide-vue-next";
+import { SquarePlus, Mail, ShieldCheck, MoreHorizontal } from "lucide-vue-next";
 
 import {
     DropdownMenu,
@@ -28,17 +22,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge/index";
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
 import SearchInput from "@/components/SearchInput.vue";
 import FilterControl from "@/components/FilterControl.vue";
 import MainContentHeader from "@/components/MainContentHeader.vue";
@@ -46,7 +29,7 @@ import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
 import { useInitials } from "@/composables/useInitials";
 
 const props = defineProps({
-    roles: Object,
+    users: Object,
     search_term: String,
     per_page_term: String,
     filter_term: String,
@@ -54,17 +37,16 @@ const props = defineProps({
 
 const breadcrumbs = [
     { title: "Dashboard", href: "/dashboard" },
-    { title: "Role", href: "/role" },
+    { title: "Pengguna", href: "/user" },
 ];
 
 const search = ref(props.search_term);
 const perPage = ref(props.per_page_term);
 const filter = ref(props.filter_term);
-const roleToDelete = ref(null);
 
 const dataControl = () => {
     router.get(
-        route("role.index"),
+        route("user.index"),
         {
             search: search.value,
             per_page: perPage.value,
@@ -88,31 +70,17 @@ watch([perPage, filter], () => {
     dataControl();
 });
 
-const confirmDelete = (role) => {
-    roleToDelete.value = role;
-};
-
-const destroy = () => {
-    if (!roleToDelete.value) return;
-    router.delete(route("role.destroy", roleToDelete.value.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-            roleToDelete.value = null;
-        },
-    });
-};
-
 const { getInitials } = useInitials();
 </script>
 
 <template>
-    <Head title="Role" />
+    <Head title="Pengguna" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <MainContentHeader>
-                <MainContentHeaderTitle title="Data Role" />
+                <MainContentHeaderTitle title="Data Pengguna" />
                 <Link
-                    :href="route('role.create')"
+                    :href="route('user.create')"
                     :class="buttonVariants({ variant: 'default' })"
                 >
                     <SquarePlus class="w-4 h-4" />Tambah
@@ -128,9 +96,9 @@ const { getInitials } = useInitials();
                 />
             </div>
             <div class="flex flex-col gap-4 mb-2">
-                <template v-if="roles.data.length > 0">
+                <template v-if="users.data.length > 0">
                     <Card
-                        v-for="item in roles.data"
+                        v-for="item in users.data"
                         :key="item.id"
                         class="py-4"
                     >
@@ -146,16 +114,16 @@ const { getInitials } = useInitials();
                                     <div
                                         class="flex items-center font-semibold gap-1 text-gray-500 text-sm"
                                     >
-                                        <Captions class="size-4" />
-                                        {{ item.guard_name }}
+                                        <Mail class="size-4" />
+                                        {{ item.email }}
                                     </div>
                                 </div>
                                 <Badge
                                     variant="outline"
                                     class="p-2 rounded-full"
                                 >
-                                    <ShieldUser />
-                                    {{ item.permissions_count }} Permission
+                                    <ShieldCheck />
+                                    {{ item.roles[0].name }}
                                 </Badge>
                                 <div class="w-full flex justify-end">
                                     <DropdownMenu>
@@ -178,20 +146,13 @@ const { getInitials } = useInitials();
                                                 <Link
                                                     :href="
                                                         route(
-                                                            'role.edit',
+                                                            'user.edit',
                                                             item.id
                                                         )
                                                     "
                                                 >
                                                     Ubah
                                                 </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                @select="
-                                                    () => confirmDelete(item)
-                                                "
-                                            >
-                                                Hapus
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -207,34 +168,16 @@ const { getInitials } = useInitials();
                         </span>
                         <div>
                             <Link
-                                :href="route('role.create')"
+                                :href="route('user.create')"
                                 :class="buttonVariants({ variant: 'default' })"
-                                ><SquarePlus class="w-4 h-4" />Tambah Role</Link
+                                ><SquarePlus class="w-4 h-4" />Tambah
+                                Pengguna</Link
                             >
                         </div>
                     </div>
                 </template>
             </div>
-            <PaginationLinks :paginator="roles" />
+            <PaginationLinks :paginator="users" />
         </MainContent>
     </AppLayout>
-    <AlertDialog :open="!!roleToDelete">
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>
-                    Apakah Anda benar-benar yakin?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                    Tindakan ini tidak dapat dibatalkan. Ini akan secara
-                    permanen menghapus data terkait dari server kami.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel @click="roleToDelete = null">
-                    Batal
-                </AlertDialogCancel>
-                <AlertDialogAction @click="destroy">Hapus</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
 </template>

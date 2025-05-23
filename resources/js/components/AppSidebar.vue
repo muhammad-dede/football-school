@@ -1,5 +1,4 @@
 <script setup>
-import NavFooter from "@/components/NavFooter.vue";
 import NavMain from "@/components/NavMain.vue";
 import NavUser from "@/components/NavUser.vue";
 import {
@@ -12,7 +11,13 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@inertiajs/vue3";
-import { BookOpen, Folder, LayoutGrid, ShieldCheck } from "lucide-vue-next";
+import {
+    BookOpen,
+    Folder,
+    LayoutGrid,
+    ShieldCheck,
+    User,
+} from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 
 const dashboardNavItems = [
@@ -29,18 +34,10 @@ const manageUserNavItems = [
         href: "/role",
         icon: ShieldCheck,
     },
-];
-
-const footerNavItems = [
     {
-        title: "Github Repo",
-        href: "https://github.com/laravel/vue-starter-kit",
-        icon: Folder,
-    },
-    {
-        title: "Documentation",
-        href: "https://laravel.com/docs/starter-kits#vue",
-        icon: BookOpen,
+        title: "Pengguna",
+        href: "/user",
+        icon: User,
     },
 ];
 </script>
@@ -68,7 +65,6 @@ const footerNavItems = [
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

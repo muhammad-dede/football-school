@@ -62,8 +62,10 @@ const submit = () => {
             <form @submit.prevent="submit">
                 <Card>
                     <CardContent>
-                        <div class="grid grid-cols-2 mb-4">
-                            <div class="grid gap-2">
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6 mb-4"
+                        >
+                            <div class="w-full flex flex-col gap-2">
                                 <Label for="name">Nama</Label>
                                 <Input
                                     id="name"

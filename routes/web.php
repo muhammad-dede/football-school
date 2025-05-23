@@ -13,6 +13,7 @@ Route::get('dashboard', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('role', App\Http\Controllers\RoleController::class)->except('show');
+    Route::resource('user', App\Http\Controllers\UserController::class)->except(['show', 'destroy']);
 });
 
 require __DIR__ . '/auth.php';
