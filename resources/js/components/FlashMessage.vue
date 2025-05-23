@@ -28,10 +28,29 @@ const close = () => {
     }, 300);
 };
 
-onMounted(() => {
+const resetFlashMessage = () => {
+    visible.value = true;
+    isLeaving.value = false;
+    clearTimeout(timeout);
+
     if (props.autoClose) {
         timeout = setTimeout(close, props.duration);
     }
+};
+
+// Watch untuk message changes - reset ketika ada message baru
+watch(
+    () => props.message,
+    (newMessage) => {
+        if (newMessage) {
+            resetFlashMessage();
+        }
+    },
+    { immediate: true }
+);
+
+onMounted(() => {
+    resetFlashMessage();
 });
 
 onUnmounted(() => {
@@ -41,9 +60,9 @@ onUnmounted(() => {
 
 <template>
     <div
-        v-if="visible"
+        v-if="visible && message"
         :class="[
-            'fixed bottom-5 right-5 bg-white border rounded-xl shadow-lg p-4',
+            'fixed bottom-5 right-5 bg-white border rounded-xl shadow-lg p-4 z-50',
             isLeaving ? 'animate-fade-out' : 'animate-fade-in',
         ]"
     >
