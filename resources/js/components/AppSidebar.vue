@@ -19,12 +19,16 @@ import {
     User,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
+import usePermissions from "@/composables/usePermissions";
+
+const { canAny } = usePermissions();
 
 const dashboardNavItems = [
     {
         title: "Dashboard",
         href: "/dashboard",
         icon: LayoutGrid,
+        permission: "dashboard",
     },
 ];
 
@@ -33,11 +37,13 @@ const manageUserNavItems = [
         title: "Role",
         href: "/role",
         icon: ShieldCheck,
+        permission: "role-index",
     },
     {
         title: "Pengguna",
         href: "/user",
         icon: User,
+        permission: "user-index",
     },
 ];
 </script>
@@ -59,6 +65,7 @@ const manageUserNavItems = [
         <SidebarContent>
             <NavMain :items="dashboardNavItems" />
             <NavMain
+                v-if="canAny('role-index', 'user-index')"
                 group-label="Kelola Pengguna"
                 :items="manageUserNavItems"
             />

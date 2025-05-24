@@ -7,6 +7,9 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, usePage } from "@inertiajs/vue3";
+import usePermissions from "@/composables/usePermissions";
+
+const { can } = usePermissions();
 
 const props = defineProps({
     groupLabel: String,
@@ -24,6 +27,7 @@ const page = usePage();
         <SidebarMenu>
             <SidebarMenuItem v-for="item in props.items" :key="item.title">
                 <SidebarMenuButton
+                    v-if="can(item.permission)"
                     as-child
                     :is-active="page.url.startsWith(item.href)"
                     :tooltip="item.title"

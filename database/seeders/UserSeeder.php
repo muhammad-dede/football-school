@@ -16,6 +16,8 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // Dashboard
+            ['guard_name' => 'web', 'name' => 'dashboard'],
             // Role
             ['guard_name' => 'web', 'name' => 'role-index'],
             ['guard_name' => 'web', 'name' => 'role-create'],
@@ -82,6 +84,8 @@ class UserSeeder extends Seeder
             $role =  Role::create($value);
 
             if ($role->name === 'Admin') {
+                // Dashboard
+                $role->givePermissionTo('dashboard');
                 // Period
                 $role->givePermissionTo('period-index');
                 $role->givePermissionTo('period-create');
@@ -120,6 +124,18 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('student-delete');
                 $role->givePermissionTo('student-status');
                 $role->givePermissionTo('student-show');
+            }
+            if ($role->name === 'Leader') {
+                // Dashboard
+                $role->givePermissionTo('dashboard');
+            }
+            if ($role->name === 'Student') {
+                // Dashboard
+                $role->givePermissionTo('dashboard');
+            }
+            if ($role->name === 'Coach') {
+                // Dashboard
+                $role->givePermissionTo('dashboard');
             }
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
@@ -9,11 +10,15 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
+    use HasPermissionCheck;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->checkPermission('role-index');
+
         $search = $request->search;
         $per_page = $request->per_page ?? "5";
         $filter = $request->filter ?? 'desc';
@@ -26,6 +31,7 @@ class RoleController extends Controller
             ->when($filter, function ($query) use ($filter) {
                 $query->orderBy('created_at', $filter);
             })
+            ->whereNot('name', 'Super Admin')
             ->paginate($per_page)
             ->withQueryString();
 
@@ -42,6 +48,8 @@ class RoleController extends Controller
      */
     public function create()
     {
+        $this->checkPermission('role-create');
+
         $permissions = Permission::all();
         return Inertia::render('role/Create', [
             'permissions' => $permissions,
@@ -53,6 +61,8 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission('role-create');
+
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
             'permissions' => ['array'],
@@ -78,7 +88,11 @@ class RoleController extends Controller
      */
     public function edit(string $id)
     {
+        $this->checkPermission('role-edit');
+
         $role = Role::with(['permissions'])->findOrFail($id);
+        if ($role->name === 'Super Admin') return redirect()->back();
+
         $permissions = Permission::all();
         return Inertia::render('role/Edit', [
             'role' => $role,
@@ -91,11 +105,15 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $this->checkPermission('role-edit');
+
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $id . ',id'],
             'permissions' => ['array'],
         ]);
         $role = Role::findOrFail($id);
+        if ($role->name === 'Super Admin') return abort(403);
+
         $role->update([
             'name' => $request->name,
             'guard_name' => 'web',
@@ -109,6 +127,8 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->checkPermission('role-delete');
+
         Role::findOrFail($id)->delete();
         return redirect()->route('role.index')->with('success', 'Role berhasil dihapus');
     }

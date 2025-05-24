@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    use HasPermissionCheck;
+
     protected $roles;
 
     public function __construct()
     {
-        $this->roles = Role::all();
+        $this->roles = Role::whereNotIn('name', ['Super Admin', 'Student', 'Coach'])->get();
     }
 
     /**
@@ -21,17 +24,24 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $this->checkPermission('user-index');
+
         $search = $request->search;
         $per_page = $request->per_page ?? "5";
         $filter = $request->filter ?? 'desc';
 
         $users = User::query()->with(['roles'])
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('name', ['Super Admin', 'Student', 'Coach']);
+            })
             ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                });
             })
             ->when($filter, function ($query) use ($filter) {
-                $query->orderBy('created_at', $filter);
+                $query->orderBy('id', $filter);
             })
             ->paginate($per_page)
             ->withQueryString();
@@ -49,6 +59,8 @@ class UserController extends Controller
      */
     public function create()
     {
+        $this->checkPermission('user-create');
+
         return Inertia::render('user/Create', [
             'roles' => $this->roles,
         ]);
@@ -59,6 +71,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission('user-create');
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:user,email'],
@@ -89,6 +103,8 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
+        $this->checkPermission('user-edit');
+
         $user = User::with(['roles'])->findOrFail($id);
         return Inertia::render('user/Edit', [
             'roles' => $this->roles,
@@ -101,6 +117,8 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $this->checkPermission('user-edit');
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:user,email,' . $id . ',id'],
