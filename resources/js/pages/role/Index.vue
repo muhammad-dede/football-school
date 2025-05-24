@@ -44,6 +44,9 @@ import FilterControl from "@/components/FilterControl.vue";
 import MainContentHeader from "@/components/MainContentHeader.vue";
 import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
 import { useInitials } from "@/composables/useInitials";
+import usePermissions from "@/composables/usePermissions";
+
+const { can } = usePermissions();
 
 const props = defineProps({
     roles: Object,
@@ -112,6 +115,7 @@ const { getInitials } = useInitials();
             <MainContentHeader>
                 <MainContentHeaderTitle title="Data Role" />
                 <Link
+                    v-if="can('role-create')"
                     :href="route('role.create')"
                     :class="buttonVariants({ variant: 'default' })"
                 >
@@ -174,7 +178,10 @@ const { getInitials } = useInitials();
                                                 Aksi
                                             </DropdownMenuLabel>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem asChild>
+                                            <DropdownMenuItem
+                                                v-if="can('role-edit')"
+                                                asChild
+                                            >
                                                 <Link
                                                     :href="
                                                         route(
@@ -187,6 +194,7 @@ const { getInitials } = useInitials();
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
+                                                v-if="can('role-delete')"
                                                 @select="
                                                     () => confirmDelete(item)
                                                 "

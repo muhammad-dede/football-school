@@ -27,6 +27,9 @@ import FilterControl from "@/components/FilterControl.vue";
 import MainContentHeader from "@/components/MainContentHeader.vue";
 import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
 import { useInitials } from "@/composables/useInitials";
+import usePermissions from "@/composables/usePermissions";
+
+const { can } = usePermissions();
 
 const props = defineProps({
     users: Object,
@@ -80,6 +83,7 @@ const { getInitials } = useInitials();
             <MainContentHeader>
                 <MainContentHeaderTitle title="Data Pengguna" />
                 <Link
+                    v-if="can('user-create')"
                     :href="route('user.create')"
                     :class="buttonVariants({ variant: 'default' })"
                 >
@@ -142,7 +146,10 @@ const { getInitials } = useInitials();
                                                 Aksi
                                             </DropdownMenuLabel>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem asChild>
+                                            <DropdownMenuItem
+                                                v-if="can('user-edit')"
+                                                asChild
+                                            >
                                                 <Link
                                                     :href="
                                                         route(
