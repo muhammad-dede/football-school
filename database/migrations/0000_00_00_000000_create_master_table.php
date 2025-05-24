@@ -17,12 +17,23 @@ return new class extends Migration
             $table->string('name');
         });
 
+        Schema::create('team', function (Blueprint $table) {
+            $table->id();
+            $table->string('code', 20)->unique();
+            $table->string('name');
+            $table->integer('age_min')->nullable();
+            $table->integer('age_max')->nullable();
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
+        });
+
         Schema::create('stage', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique(); // contoh: FISIK, TEKNIK, PSIKOLOGI, EVALUASI
+            $table->string('code', 20)->unique(); // contoh: FISIK, TEKNIK, PSIKOLOGI, EVALUASI
             $table->string('name');
+            $table->decimal('percentage')->default(0);
             $table->unsignedInteger('order');
-            $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
     }
 
@@ -32,6 +43,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('position');
+        Schema::dropIfExists('team');
         Schema::dropIfExists('stage');
     }
 };

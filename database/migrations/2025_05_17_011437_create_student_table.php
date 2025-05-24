@@ -13,21 +13,29 @@ return new class extends Migration
     {
         Schema::create('student', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
             $table->string('name');
             $table->date('birth_date')->nullable();
-            $table->string('gender')->nullable();
+            $table->enum('gender', ['L', 'P'])->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
-            $table->string('position_code', 20)->nullable()->index();
-            $table->unsignedBigInteger('class_id')->nullable()->index();
             $table->unsignedBigInteger('user_id')->nullable()->index();
-            $table->string('status')->nullable();
             $table->timestamps();
 
-            $table->foreign('position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');
-            $table->foreign('class_id')->references('id')->on('class')->onDelete('set null');
             $table->foreign('user_id')->references('id')->on('user')->onDelete('set null');
+        });
+
+        Schema::create('student_team', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('student_id')->index();
+            $table->string('team_code', 20)->nullable()->index();
+            $table->unsignedBigInteger('period_id')->nullable()->index();
+            $table->date('join_date')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+
+            $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
+            $table->foreign('team_code')->references('code')->on('team')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('period_id')->references('id')->on('period')->onDelete('set null');
         });
     }
 
@@ -37,5 +45,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('student');
+        Schema::dropIfExists('student_team');
     }
 };

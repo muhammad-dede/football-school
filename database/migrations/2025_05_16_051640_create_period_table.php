@@ -11,16 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('class', function (Blueprint $table) {
+        Schema::create('period', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 20)->unique();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->unsignedBigInteger('coach_id')->nullable()->index();
-            $table->string('status')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
-
-            $table->foreign('coach_id')->references('id')->on('coach')->onDelete('set null');
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('class');
+        Schema::dropIfExists('period');
     }
 };

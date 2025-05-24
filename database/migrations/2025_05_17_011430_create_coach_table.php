@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('coach', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
             $table->string('name');
             $table->string('specialty')->nullable();
             $table->string('phone')->nullable();
             $table->date('birth_date')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->unsignedBigInteger('user_id')->nullable()->index();
-            $table->string('status')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('user')->onDelete('set null');
