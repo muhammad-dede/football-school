@@ -17,6 +17,7 @@ import {
     LayoutGrid,
     ShieldCheck,
     User,
+    UserCog,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 import usePermissions from "@/composables/usePermissions";
@@ -46,6 +47,15 @@ const manageUserNavItems = [
         permission: "user-index",
     },
 ];
+
+const dataNavItems = [
+    {
+        title: "Pelatih",
+        href: "/coach",
+        icon: UserCog,
+        permission: "coach-index",
+    },
+];
 </script>
 
 <template>
@@ -68,6 +78,11 @@ const manageUserNavItems = [
                 v-if="canAny('role-index', 'user-index')"
                 group-label="Kelola Pengguna"
                 :items="manageUserNavItems"
+            />
+            <NavMain
+                v-if="canAny('coach-index')"
+                group-label="Data"
+                :items="dataNavItems"
             />
         </SidebarContent>
 

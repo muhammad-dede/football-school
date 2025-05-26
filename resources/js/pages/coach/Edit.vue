@@ -5,49 +5,43 @@ import MainContent from "@/components/MainContent.vue";
 import { Card, CardContent, CardFooter } from "@/components/ui/card/index";
 import { Label } from "@/components/ui/label/index";
 import { Input } from "@/components/ui/input/index";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Button, buttonVariants } from "@/components/ui/button/index";
 import InputError from "@/components/InputError.vue";
 import { LoaderCircle } from "lucide-vue-next";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
 
-defineProps({
-    roles: Object,
-});
-
 const breadcrumbs = [
     { title: "Dashboard", href: "/dashboard" },
-    { title: "Pengguna", href: "/user" },
-    { title: "Tambah", href: "/user/create" },
+    { title: "Pelatih", href: "/coach" },
+    { title: "Ubah", href: "/coach/create" },
 ];
 
+const props = defineProps({
+    coach: Object,
+});
+
 const form = useForm({
-    name: "",
-    email: "",
+    name: props.coach?.name ?? "",
+    specialty: props.coach?.specialty ?? "",
+    phone: props.coach?.phone ?? "",
+    birth_date: props.coach?.birth_date ?? "",
+    email: props.coach?.user?.email ?? "",
     password: "",
     password_confirmation: "",
-    role: "",
 });
 
 const submit = () => {
-    form.post(route("user.store"));
+    form.patch(route("coach.update", props.coach?.id));
 };
 </script>
 
 <template>
-    <Head title="Tambah Pengguna" />
+    <Head title="Ubah Pelatih" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
-                <Heading title="Tambah Pengguna" />
+                <Heading title="Ubah Pelatih" />
             </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>
@@ -66,6 +60,42 @@ const submit = () => {
                                     v-model="form.name"
                                 />
                                 <InputError :message="form.errors.name" />
+                            </div>
+                            <div class="w-full flex flex-col gap-2">
+                                <Label for="specialty">Spesialisasi</Label>
+                                <Input
+                                    id="specialty"
+                                    type="text"
+                                    name="specialty"
+                                    placeholder="Input Spesialisasi"
+                                    autocomplete="off"
+                                    v-model="form.specialty"
+                                />
+                                <InputError :message="form.errors.specialty" />
+                            </div>
+                            <div class="w-full flex flex-col gap-2">
+                                <Label for="phone">Telepon</Label>
+                                <Input
+                                    id="phone"
+                                    type="text"
+                                    name="phone"
+                                    placeholder="Input Telepon"
+                                    autocomplete="off"
+                                    v-model="form.phone"
+                                />
+                                <InputError :message="form.errors.phone" />
+                            </div>
+                            <div class="w-full flex flex-col gap-2">
+                                <Label for="birth_date">Tanggal Lahir</Label>
+                                <Input
+                                    id="birth_date"
+                                    type="date"
+                                    name="birth_date"
+                                    placeholder="Input Tanggal Lahir"
+                                    autocomplete="off"
+                                    v-model="form.birth_date"
+                                />
+                                <InputError :message="form.errors.birth_date" />
                             </div>
                             <div class="w-full flex flex-col gap-2">
                                 <Label for="email">Email</Label>
@@ -104,26 +134,6 @@ const submit = () => {
                                     v-model="form.password_confirmation"
                                 />
                             </div>
-                            <div class="w-full flex flex-col gap-2">
-                                <Label for="role">Role</Label>
-                                <Select v-model="form.role" name="role">
-                                    <SelectTrigger id="role" class="w-full">
-                                        <SelectValue placeholder="Pilih Role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem
-                                                v-for="role in roles"
-                                                :key="role.id"
-                                                :value="role.name"
-                                            >
-                                                {{ role.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <InputError :message="form.errors.role" />
-                            </div>
                         </div>
                     </CardContent>
                     <CardFooter>
@@ -136,7 +146,7 @@ const submit = () => {
                                 Simpan
                             </Button>
                             <Link
-                                :href="route('user.index')"
+                                :href="route('coach.index')"
                                 :class="buttonVariants({ variant: 'outline' })"
                                 >Kembali</Link
                             >

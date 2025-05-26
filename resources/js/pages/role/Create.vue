@@ -10,8 +10,8 @@ import InputError from "@/components/InputError.vue";
 import { LoaderCircle } from "lucide-vue-next";
 import { Button, buttonVariants } from "@/components/ui/button/index";
 import { ref, watch } from "vue";
-import MainContentHeader from "@/components/MainContentHeader.vue";
-import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
+import HeadingGroup from "@/components/HeadingGroup.vue";
+import Heading from "@/components/Heading.vue";
 
 defineProps({
     permissions: Object,
@@ -56,9 +56,9 @@ const submit = () => {
     <Head title="Tambah Role" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
-            <MainContentHeader>
-                <MainContentHeaderTitle title="Tambah Role" />
-            </MainContentHeader>
+            <HeadingGroup>
+                <Heading title="Tambah Role" />
+            </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>
                     <CardContent>

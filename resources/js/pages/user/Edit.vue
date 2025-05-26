@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input/index";
 import InputError from "@/components/InputError.vue";
 import { LoaderCircle } from "lucide-vue-next";
 import { Button, buttonVariants } from "@/components/ui/button/index";
-import MainContentHeader from "@/components/MainContentHeader.vue";
-import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
+import HeadingGroup from "@/components/HeadingGroup.vue";
+import Heading from "@/components/Heading.vue";
 import {
     Select,
     SelectContent,
@@ -47,9 +47,9 @@ const submit = () => {
     <Head title="Ubah Pengguna" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
-            <MainContentHeader>
-                <MainContentHeaderTitle title="Ubah Pengguna" />
-            </MainContentHeader>
+            <HeadingGroup>
+                <Heading title="Ubah Pengguna" />
+            </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>
                     <CardContent>

@@ -24,8 +24,8 @@ import { Badge } from "@/components/ui/badge/index";
 
 import SearchInput from "@/components/SearchInput.vue";
 import FilterControl from "@/components/FilterControl.vue";
-import MainContentHeader from "@/components/MainContentHeader.vue";
-import MainContentHeaderTitle from "@/components/MainContentHeaderTitle.vue";
+import HeadingGroup from "@/components/HeadingGroup.vue";
+import Heading from "@/components/Heading.vue";
 import { useInitials } from "@/composables/useInitials";
 import usePermissions from "@/composables/usePermissions";
 
@@ -80,8 +80,8 @@ const { getInitials } = useInitials();
     <Head title="Pengguna" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
-            <MainContentHeader>
-                <MainContentHeaderTitle title="Data Pengguna" />
+            <HeadingGroup>
+                <Heading title="Data Pengguna" />
                 <Link
                     v-if="can('user-create')"
                     :href="route('user.create')"
@@ -89,7 +89,7 @@ const { getInitials } = useInitials();
                 >
                     <SquarePlus class="w-4 h-4" />Tambah
                 </Link>
-            </MainContentHeader>
+            </HeadingGroup>
             <div class="flex justify-between items-center gap-4 mb-4">
                 <SearchInput v-model="search" />
                 <FilterControl
@@ -106,7 +106,7 @@ const { getInitials } = useInitials();
                         :key="item.id"
                         class="py-4"
                     >
-                        <CardContent class="px-4">
+                        <CardContent class="px-4 relative">
                             <div class="flex items-center gap-4">
                                 <Avatar class="size-12">
                                     <AvatarFallback>
@@ -129,7 +129,7 @@ const { getInitials } = useInitials();
                                     <ShieldCheck />
                                     {{ item.roles[0].name }}
                                 </Badge>
-                                <div class="w-full flex justify-end">
+                                <div class="ml-auto relative">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger as-child>
                                             <Button
