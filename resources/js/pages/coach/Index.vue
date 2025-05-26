@@ -128,7 +128,7 @@ const changeStatus = () => {
         <MainContent>
             <HeadingGroup>
                 <Heading
-                    title="Pelatih"
+                    title="Data Pelatih"
                     description="Lihat dan kelola data pelatih yang tersedia"
                 />
                 <Link

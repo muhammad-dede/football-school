@@ -41,7 +41,10 @@ const submit = () => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
-                <Heading title="Ubah Pelatih" />
+                <Heading
+                    title="Ubah Pelatih"
+                    description="Formulir untuk mengubah data pelatih yang telah terdaftar"
+                />
             </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>
