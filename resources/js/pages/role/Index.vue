@@ -47,6 +47,7 @@ import { useInitials } from "@/composables/useInitials";
 import usePermissions from "@/composables/usePermissions";
 
 const { can } = usePermissions();
+const { getInitials } = useInitials();
 
 const props = defineProps({
     roles: Object,
@@ -97,15 +98,15 @@ const confirmDelete = (role) => {
 
 const destroy = () => {
     if (!roleToDelete.value) return;
-    router.delete(route("role.destroy", roleToDelete.value.id), {
+    const roleId = roleToDelete.value.id;
+    roleToDelete.value = null;
+    router.delete(route("role.destroy", roleId), {
         preserveScroll: true,
-        onSuccess: () => {
+        onFinish: () => {
             roleToDelete.value = null;
         },
     });
 };
-
-const { getInitials } = useInitials();
 </script>
 
 <template>
@@ -113,7 +114,10 @@ const { getInitials } = useInitials();
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
-                <Heading title="Data Role" />
+                <Heading
+                    title="Data Role"
+                    description="Lihat dan kelola data role yang tersedia"
+                />
                 <Link
                     v-if="can('role-create')"
                     :href="route('role.create')"
@@ -138,34 +142,46 @@ const { getInitials } = useInitials();
                         :key="item.id"
                         class="py-4"
                     >
-                        <CardContent class="px-4 relative">
-                            <div class="flex items-center gap-4">
+                        <CardContent class="px-4">
+                            <div
+                                class="flex lg:items-center gap-4 relative overflow-hidden items-start"
+                            >
                                 <Avatar class="size-12">
                                     <AvatarFallback>
                                         {{ getInitials(item.name) }}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div class="flex flex-col w-sm">
-                                    <h5 class="font-bold">{{ item.name }}</h5>
-                                    <div
-                                        class="flex items-center font-semibold gap-1 text-gray-500 text-sm"
-                                    >
-                                        <Captions class="size-4" />
-                                        {{ item.guard_name }}
-                                    </div>
-                                </div>
-                                <Badge
-                                    variant="outline"
-                                    class="p-2 rounded-full"
+                                <div
+                                    class="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-4"
                                 >
-                                    <ShieldUser />
-                                    {{ item.permissions_count }} Permission
-                                </Badge>
-                                <div class="ml-auto relative">
+                                    <div
+                                        class="flex flex-col lg:min-w-xs lg:max-w-sm"
+                                    >
+                                        <h5 class="font-bold">
+                                            {{ item.name }}
+                                        </h5>
+                                        <div
+                                            class="flex items-center font-semibold gap-1 text-gray-500 text-sm"
+                                        >
+                                            <Captions class="size-4" />
+                                            {{ item.guard_name }}
+                                        </div>
+                                    </div>
+                                    <Badge
+                                        variant="outline"
+                                        class="p-2 rounded-full h-fit"
+                                    >
+                                        <ShieldUser />
+                                        {{ item.permissions_count }} Permission
+                                    </Badge>
+                                </div>
+                                <div
+                                    class="absolute top-0 right-0 flex items-start justify-center h-full lg:items-center"
+                                >
                                     <DropdownMenu>
                                         <DropdownMenuTrigger as-child>
                                             <Button
-                                                variant="ghost"
+                                                variant="outline"
                                                 class="w-8 h-8 p-0"
                                             >
                                                 <MoreHorizontal
@@ -194,7 +210,7 @@ const { getInitials } = useInitials();
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
-                                                v-if="can('role-delete')"
+                                                v-if="can('roal-delete')"
                                                 @select="
                                                     () => confirmDelete(item)
                                                 "

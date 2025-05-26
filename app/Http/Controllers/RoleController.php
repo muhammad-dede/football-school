@@ -29,7 +29,7 @@ class RoleController extends Controller
                 $query->where('name', 'like', '%' . $search . '%');
             })
             ->when($filter, function ($query) use ($filter) {
-                $query->orderBy('created_at', $filter);
+                $query->orderBy('id', $filter);
             })
             ->whereNot('name', 'Super Admin')
             ->paginate($per_page)

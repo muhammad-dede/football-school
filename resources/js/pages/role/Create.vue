@@ -57,7 +57,10 @@ const submit = () => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
-                <Heading title="Tambah Role" />
+                <Heading
+                    title="Tambah Role"
+                    description="Formulir untuk menambahkan data role baru"
+                />
             </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>

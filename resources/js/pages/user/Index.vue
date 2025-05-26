@@ -81,7 +81,10 @@ const { getInitials } = useInitials();
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
-                <Heading title="Data Pengguna" />
+                <Heading
+                    title="Data Pengguna"
+                    description="Lihat dan kelola data pengguna yang tersedia"
+                />
                 <Link
                     v-if="can('user-create')"
                     :href="route('user.create')"
@@ -106,34 +109,46 @@ const { getInitials } = useInitials();
                         :key="item.id"
                         class="py-4"
                     >
-                        <CardContent class="px-4 relative">
-                            <div class="flex items-center gap-4">
+                        <CardContent class="px-4">
+                            <div
+                                class="flex lg:items-center gap-4 relative overflow-hidden items-start"
+                            >
                                 <Avatar class="size-12">
                                     <AvatarFallback>
                                         {{ getInitials(item.name) }}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div class="flex flex-col w-sm">
-                                    <h5 class="font-bold">{{ item.name }}</h5>
-                                    <div
-                                        class="flex items-center font-semibold gap-1 text-gray-500 text-sm"
-                                    >
-                                        <Mail class="size-4" />
-                                        {{ item.email }}
-                                    </div>
-                                </div>
-                                <Badge
-                                    variant="outline"
-                                    class="p-2 rounded-full"
+                                <div
+                                    class="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-4"
                                 >
-                                    <ShieldCheck />
-                                    {{ item.roles[0].name }}
-                                </Badge>
-                                <div class="ml-auto relative">
+                                    <div
+                                        class="flex flex-col lg:min-w-xs lg:max-w-sm"
+                                    >
+                                        <h5 class="font-bold">
+                                            {{ item.name }}
+                                        </h5>
+                                        <div
+                                            class="flex items-center font-semibold gap-1 text-gray-500 text-sm"
+                                        >
+                                            <Mail class="size-4" />
+                                            {{ item.email }}
+                                        </div>
+                                    </div>
+                                    <Badge
+                                        variant="outline"
+                                        class="p-2 rounded-full"
+                                    >
+                                        <ShieldCheck />
+                                        {{ item.roles?.[0]?.name || "-" }}
+                                    </Badge>
+                                </div>
+                                <div
+                                    class="absolute top-0 right-0 flex items-start justify-center h-full lg:items-center"
+                                >
                                     <DropdownMenu>
                                         <DropdownMenuTrigger as-child>
                                             <Button
-                                                variant="ghost"
+                                                variant="outline"
                                                 class="w-8 h-8 p-0"
                                             >
                                                 <MoreHorizontal
