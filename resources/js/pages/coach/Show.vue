@@ -1,18 +1,11 @@
 <script setup>
 import AppLayout from "@/layouts/AppLayout.vue";
-import { Head, useForm, Link } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import MainContent from "@/components/MainContent.vue";
-import { Card, CardContent, CardFooter } from "@/components/ui/card/index";
-import { Label } from "@/components/ui/label/index";
-import { Input } from "@/components/ui/input/index";
-import { Button, buttonVariants } from "@/components/ui/button/index";
-import InputError from "@/components/InputError.vue";
+import { buttonVariants } from "@/components/ui/button/index";
 import { Tag, Phone, Calendar, Gem, UserCheck, Mail } from "lucide-vue-next";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
-import HeadingSmall from "@/components/HeadingSmall.vue";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge/index";
 import DetailItem from "@/components/DetailItem.vue";
 
 const props = defineProps({
