@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
@@ -80,14 +81,20 @@ class UserController extends Controller
             'role' => ['required', 'string', 'max:255', 'exists:roles,name'],
         ]);
 
-        $user = User::create([
-            'name' => strtoupper($request->name),
-            'email' => strtolower($request->email),
-            'password' => bcrypt($request->password),
-        ]);
-
-        $user->syncRoles($request->role);
-        return redirect()->route('user.index')->with('success', 'Pengguna berhasil ditambahkan');
+        try {
+            DB::beginTransaction();
+            $user = User::create([
+                'name' => strtoupper($request->name),
+                'email' => strtolower($request->email),
+                'password' => bcrypt($request->password),
+            ]);
+            $user->syncRoles($request->role);
+            DB::commit();
+            return redirect()->route('user.index')->with('success', 'Pengguna berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     /**
@@ -126,16 +133,21 @@ class UserController extends Controller
             'role' => ['required', 'string', 'max:255', 'exists:roles,name'],
         ]);
 
-        $user = User::findOrFail($id);
-
-        $user->update([
-            'name' => strtoupper($request->name),
-            'email' => strtolower($request->email),
-            'password' => $request->password ? bcrypt($request->password) : $user->password,
-        ]);
-
-        $user->syncRoles($request->role);
-        return redirect()->route('user.index')->with('success', 'Pengguna berhasil diubah');
+        try {
+            DB::beginTransaction();
+            $user = User::findOrFail($id);
+            $user->update([
+                'name' => strtoupper($request->name),
+                'email' => strtolower($request->email),
+                'password' => $request->password ? bcrypt($request->password) : $user->password,
+            ]);
+            $user->syncRoles($request->role);
+            DB::commit();
+            return redirect()->route('user.index')->with('success', 'Pengguna berhasil diubah');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     /**
@@ -143,6 +155,38 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $this->checkPermission('user-delete');
+
+        try {
+            DB::beginTransaction();
+            $user = User::findOrFail($id);
+            $user->delete();
+            DB::commit();
+            return redirect()->back()->with('success', 'Pengguna berhasil dihapus');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    /**
+     * Change Status the specified resource from storage.
+     */
+    public function status(string $id)
+    {
+        $this->checkPermission('user-status');
+
+        try {
+            DB::beginTransaction();
+            $user = User::findOrFail($id);
+            $user->update([
+                'is_active' => $user->is_active ? false : true,
+            ]);
+            DB::commit();
+            return redirect()->back()->with('success', 'Status Pengguna berhasil diubah');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }

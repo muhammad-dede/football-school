@@ -8,7 +8,13 @@ import MainContent from "@/components/MainContent.vue";
 import PaginationLinks from "@/components/PaginationLinks.vue";
 import { Card, CardContent } from "@/components/ui/card/index";
 import { Button, buttonVariants } from "@/components/ui/button/index";
-import { SquarePlus, Mail, ShieldCheck, MoreHorizontal } from "lucide-vue-next";
+import {
+    SquarePlus,
+    Mail,
+    ShieldCheck,
+    MoreHorizontal,
+    UserCheck,
+} from "lucide-vue-next";
 
 import {
     DropdownMenu,
@@ -18,6 +24,16 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge/index";
@@ -30,6 +46,7 @@ import { useInitials } from "@/composables/useInitials";
 import usePermissions from "@/composables/usePermissions";
 
 const { can } = usePermissions();
+const { getInitials } = useInitials();
 
 const props = defineProps({
     users: Object,
@@ -46,6 +63,8 @@ const breadcrumbs = [
 const search = ref(props.search_term);
 const perPage = ref(props.per_page_term);
 const filter = ref(props.filter_term);
+const userToDelete = ref(null);
+const userToStatus = ref(null);
 
 const dataControl = () => {
     router.get(
@@ -73,7 +92,33 @@ watch([perPage, filter], () => {
     dataControl();
 });
 
-const { getInitials } = useInitials();
+const confirmDelete = (user) => {
+    userToDelete.value = user;
+};
+
+const destroy = () => {
+    if (!userToDelete.value) return;
+    const userId = userToDelete.value.id;
+    router.delete(route("user.destroy", userId), {
+        preserveScroll: true,
+        onFinish: () => {
+            userToDelete.value = null;
+        },
+    });
+};
+
+const confirmStatus = (user) => {
+    userToStatus.value = user;
+};
+
+const changeStatus = () => {
+    if (!userToStatus.value) return;
+    const userId = userToStatus.value.id;
+    userToStatus.value = null;
+    router.post(route("user.status", userId), {
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -141,6 +186,22 @@ const { getInitials } = useInitials();
                                         <ShieldCheck />
                                         {{ item.roles?.[0]?.name || "-" }}
                                     </Badge>
+                                    <Badge
+                                        :variant="
+                                            item.is_active
+                                                ? 'secondary'
+                                                : 'destructive'
+                                        "
+                                        class="p-2 rounded-full h-fit cursor-pointer"
+                                        @click="confirmStatus(item)"
+                                    >
+                                        <UserCheck />
+                                        {{
+                                            item.is_active
+                                                ? "Aktif"
+                                                : "Tidak Aktif"
+                                        }}
+                                    </Badge>
                                 </div>
                                 <div
                                     class="absolute top-0 right-0 flex items-start justify-center h-full lg:items-center"
@@ -176,6 +237,14 @@ const { getInitials } = useInitials();
                                                     Ubah
                                                 </Link>
                                             </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                v-if="can('user-delete')"
+                                                @select="
+                                                    () => confirmDelete(item)
+                                                "
+                                            >
+                                                Hapus
+                                            </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
@@ -202,4 +271,43 @@ const { getInitials } = useInitials();
             <PaginationLinks :paginator="users" />
         </MainContent>
     </AppLayout>
+    <AlertDialog :open="!!userToDelete">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>
+                    Apakah Anda benar-benar yakin?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                    Tindakan ini tidak dapat dibatalkan. Ini akan secara
+                    permanen menghapus data terkait dari server kami.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel @click="userToDelete = null">
+                    Batal
+                </AlertDialogCancel>
+                <AlertDialogAction @click="destroy">Hapus</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    <AlertDialog :open="!!userToStatus">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>
+                    Apakah Anda benar-benar yakin?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                    Anda akan mengubah status Pengguna.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel @click="userToStatus = null">
+                    Batal
+                </AlertDialogCancel>
+                <AlertDialogAction @click="changeStatus"
+                    >Ubah Status</AlertDialogAction
+                >
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>

@@ -28,18 +28,19 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'user-create'],
             ['guard_name' => 'web', 'name' => 'user-edit'],
             ['guard_name' => 'web', 'name' => 'user-delete'],
+            ['guard_name' => 'web', 'name' => 'user-status'],
             // Period
             ['guard_name' => 'web', 'name' => 'period-index'],
             ['guard_name' => 'web', 'name' => 'period-create'],
             ['guard_name' => 'web', 'name' => 'period-edit'],
             ['guard_name' => 'web', 'name' => 'period-delete'],
             ['guard_name' => 'web', 'name' => 'period-status'],
-            // Class
-            ['guard_name' => 'web', 'name' => 'class-index'],
-            ['guard_name' => 'web', 'name' => 'class-create'],
-            ['guard_name' => 'web', 'name' => 'class-edit'],
-            ['guard_name' => 'web', 'name' => 'class-delete'],
-            ['guard_name' => 'web', 'name' => 'class-status'],
+            // Team
+            ['guard_name' => 'web', 'name' => 'team-index'],
+            ['guard_name' => 'web', 'name' => 'team-create'],
+            ['guard_name' => 'web', 'name' => 'team-edit'],
+            ['guard_name' => 'web', 'name' => 'team-delete'],
+            ['guard_name' => 'web', 'name' => 'team-status'],
             // Training
             ['guard_name' => 'web', 'name' => 'training-index'],
             ['guard_name' => 'web', 'name' => 'training-create'],
@@ -92,12 +93,12 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('period-edit');
                 $role->givePermissionTo('period-delete');
                 $role->givePermissionTo('period-status');
-                // Class
-                $role->givePermissionTo('class-index');
-                $role->givePermissionTo('class-create');
-                $role->givePermissionTo('class-edit');
-                $role->givePermissionTo('class-delete');
-                $role->givePermissionTo('class-status');
+                // Team
+                $role->givePermissionTo('team-index');
+                $role->givePermissionTo('team-create');
+                $role->givePermissionTo('team-edit');
+                $role->givePermissionTo('team-delete');
+                $role->givePermissionTo('team-status');
                 // Training
                 $role->givePermissionTo('training-index');
                 $role->givePermissionTo('training-create');

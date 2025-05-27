@@ -13,7 +13,8 @@ Route::get('dashboard', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('role', App\Http\Controllers\RoleController::class)->except('show');
-    Route::resource('user', App\Http\Controllers\UserController::class)->except(['show', 'destroy']);
+    Route::post('user/{id}/status', [App\Http\Controllers\UserController::class, 'status'])->name('user.status');
+    Route::resource('user', App\Http\Controllers\UserController::class)->except('show');
     Route::post('coach/{id}/status', [App\Http\Controllers\CoachController::class, 'status'])->name('coach.status');
     Route::resource('coach', App\Http\Controllers\CoachController::class);
 });
