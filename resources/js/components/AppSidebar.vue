@@ -97,7 +97,7 @@ const dataNavItems = [
                 :items="manageUserNavItems"
             />
             <NavMain
-                v-if="canAny('period-index')"
+                v-if="canAny('group-index', 'period-index')"
                 group-label="Master"
                 :items="masterNavItems"
             />
