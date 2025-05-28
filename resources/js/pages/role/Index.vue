@@ -229,7 +229,7 @@ const destroy = () => {
                         <span class="text-base font-semibold">
                             Tidak ada data ditemukan
                         </span>
-                        <div>
+                        <div v-if="can('role-create')">
                             <Link
                                 :href="route('role.create')"
                                 :class="buttonVariants({ variant: 'default' })"

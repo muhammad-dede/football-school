@@ -169,8 +169,17 @@ const changeStatus = () => {
                                                 ? 'secondary'
                                                 : 'destructive'
                                         "
-                                        class="p-2 rounded-full h-fit cursor-pointer"
-                                        @click="confirmStatus(item)"
+                                        :class="[
+                                            'p-2 rounded-full h-fit',
+                                            can('period-status')
+                                                ? 'cursor-pointer'
+                                                : '',
+                                        ]"
+                                        @click="
+                                            can('period-status')
+                                                ? confirmStatus(item)
+                                                : null
+                                        "
                                     >
                                         <UserCheck />
                                         {{
@@ -226,7 +235,7 @@ const changeStatus = () => {
                         <span class="text-base font-semibold">
                             Tidak ada data ditemukan
                         </span>
-                        <div>
+                        <div v-if="can('period-create')">
                             <Link
                                 :href="route('period.create')"
                                 :class="buttonVariants({ variant: 'default' })"

@@ -192,8 +192,17 @@ const changeStatus = () => {
                                                 ? 'secondary'
                                                 : 'destructive'
                                         "
-                                        class="p-2 rounded-full h-fit cursor-pointer"
-                                        @click="confirmStatus(item)"
+                                        :class="[
+                                            'p-2 rounded-full h-fit',
+                                            can('user-status')
+                                                ? 'cursor-pointer'
+                                                : '',
+                                        ]"
+                                        @click="
+                                            can('user-status')
+                                                ? confirmStatus(item)
+                                                : null
+                                        "
                                     >
                                         <UserCheck />
                                         {{
@@ -257,7 +266,7 @@ const changeStatus = () => {
                         <span class="text-base font-semibold">
                             Tidak ada data ditemukan
                         </span>
-                        <div>
+                        <div v-if="can('user-create')">
                             <Link
                                 :href="route('user.create')"
                                 :class="buttonVariants({ variant: 'default' })"

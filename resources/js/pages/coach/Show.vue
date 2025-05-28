@@ -22,9 +22,8 @@ import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
 import DetailItem from "@/components/DetailItem.vue";
 import { ref } from "vue";
-import Lightbox from "@/components/Lightbox.vue";
 import usePermissions from "@/composables/usePermissions";
-
+import Lightbox from "@/components/Lightbox.vue";
 const { can } = usePermissions();
 
 const props = defineProps({
