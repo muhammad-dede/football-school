@@ -14,6 +14,12 @@ class UserController extends Controller
     use HasPermissionCheck;
 
     protected $roles;
+    protected $attributes = [
+        'name' => 'Nama',
+        'email' => 'Email',
+        'password' => 'Password',
+        'role' => 'Role',
+    ];
 
     public function __construct()
     {
@@ -79,7 +85,7 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:user,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'string', 'max:255', 'exists:roles,name'],
-        ]);
+        ], [], $this->attributes);
 
         try {
             DB::beginTransaction();
@@ -131,7 +137,7 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:user,email,' . $id . ',id'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'string', 'max:255', 'exists:roles,name'],
-        ]);
+        ], [], $this->attributes);
 
         try {
             DB::beginTransaction();

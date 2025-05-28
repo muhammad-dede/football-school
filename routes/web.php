@@ -17,6 +17,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // User
     Route::post('user/{user}/status', [App\Http\Controllers\UserController::class, 'status'])->name('user.status');
     Route::resource('user', App\Http\Controllers\UserController::class)->except('show');
+    // Period
+    Route::post('period/{period}/status', [App\Http\Controllers\PeriodController::class, 'status'])->name('period.status');
+    Route::resource('period', App\Http\Controllers\PeriodController::class)->except(['show', 'destroy']);
     // Coach
     Route::post('coach/{coach}/status', [App\Http\Controllers\CoachController::class, 'status'])->name('coach.status');
     Route::post('coach/{coach}', [App\Http\Controllers\CoachController::class, 'update'])->name('coach.update');

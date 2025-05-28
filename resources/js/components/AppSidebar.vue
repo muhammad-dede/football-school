@@ -18,6 +18,7 @@ import {
     ShieldCheck,
     User,
     UserCog,
+    CalendarRange,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 import usePermissions from "@/composables/usePermissions";
@@ -49,6 +50,12 @@ const manageUserNavItems = [
 ];
 
 const dataNavItems = [
+    {
+        title: "Periode",
+        href: "/period",
+        icon: CalendarRange,
+        permission: "period-index",
+    },
     {
         title: "Pelatih",
         href: "/coach",

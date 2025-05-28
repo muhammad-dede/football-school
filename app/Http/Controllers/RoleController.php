@@ -12,6 +12,11 @@ class RoleController extends Controller
 {
     use HasPermissionCheck;
 
+    protected $attributes = [
+        'name' => 'Nama',
+        'permissions' => 'Permission',
+    ];
+
     /**
      * Display a listing of the resource.
      */
@@ -66,7 +71,7 @@ class RoleController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
             'permissions' => ['array'],
-        ]);
+        ], [], $this->attributes);
         $role = Role::create([
             'name' => $request->name,
             'guard_name' => 'web',
@@ -110,7 +115,7 @@ class RoleController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $id . ',id'],
             'permissions' => ['array'],
-        ]);
+        ], [], $this->attributes);
         $role = Role::findOrFail($id);
         if ($role->name === 'Super Admin') return abort(403);
 
