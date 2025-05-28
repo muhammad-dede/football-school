@@ -19,6 +19,7 @@ import {
     User,
     UserCog,
     CalendarRange,
+    Group,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 import usePermissions from "@/composables/usePermissions";
@@ -49,13 +50,22 @@ const manageUserNavItems = [
     },
 ];
 
-const dataNavItems = [
+const masterNavItems = [
+    {
+        title: "Grup",
+        href: "/group",
+        icon: Group,
+        permission: "group-index",
+    },
     {
         title: "Periode",
         href: "/period",
         icon: CalendarRange,
         permission: "period-index",
     },
+];
+
+const dataNavItems = [
     {
         title: "Pelatih",
         href: "/coach",
@@ -85,6 +95,11 @@ const dataNavItems = [
                 v-if="canAny('role-index', 'user-index')"
                 group-label="Kelola Pengguna"
                 :items="manageUserNavItems"
+            />
+            <NavMain
+                v-if="canAny('period-index')"
+                group-label="Master"
+                :items="masterNavItems"
             />
             <NavMain
                 v-if="canAny('coach-index')"
