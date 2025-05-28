@@ -14,9 +14,20 @@ return new class extends Migration
         Schema::create('coach', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('specialty')->nullable();
+            $table->string('place_of_birth')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['L', 'P']);
+            $table->text('address')->nullable();
             $table->string('phone')->nullable();
-            $table->date('birth_date')->nullable();
+            $table->string('national_id_number')->nullable();
+            $table->string('photo')->nullable();
+            // Coaching License
+            $table->string('coaching_license');
+            $table->string('license_number')->nullable();
+            $table->date('license_issued_at')->nullable();
+            $table->date('license_expired_at')->nullable();
+            $table->string('license_issuer')->nullable();
+
             $table->boolean('is_active')->default(true);
             $table->unsignedBigInteger('user_id')->nullable()->index();
             $table->timestamps();

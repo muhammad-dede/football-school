@@ -12,11 +12,15 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Role
     Route::resource('role', App\Http\Controllers\RoleController::class)->except('show');
-    Route::post('user/{id}/status', [App\Http\Controllers\UserController::class, 'status'])->name('user.status');
+    // User
+    Route::post('user/{user}/status', [App\Http\Controllers\UserController::class, 'status'])->name('user.status');
     Route::resource('user', App\Http\Controllers\UserController::class)->except('show');
-    Route::post('coach/{id}/status', [App\Http\Controllers\CoachController::class, 'status'])->name('coach.status');
-    Route::resource('coach', App\Http\Controllers\CoachController::class);
+    // Coach
+    Route::post('coach/{coach}/status', [App\Http\Controllers\CoachController::class, 'status'])->name('coach.status');
+    Route::post('coach/{coach}', [App\Http\Controllers\CoachController::class, 'update'])->name('coach.update');
+    Route::resource('coach', App\Http\Controllers\CoachController::class)->except('update');
 });
 
 require __DIR__ . '/auth.php';

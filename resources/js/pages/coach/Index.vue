@@ -36,7 +36,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge/index";
 
 import SearchInput from "@/components/SearchInput.vue";
@@ -160,6 +160,10 @@ const changeStatus = () => {
                                 class="flex lg:items-center gap-4 relative overflow-hidden items-start"
                             >
                                 <Avatar class="size-12">
+                                    <AvatarImage
+                                        :src="item.photo_url"
+                                        alt="photo"
+                                    />
                                     <AvatarFallback>
                                         {{ getInitials(item.name) }}
                                     </AvatarFallback>
