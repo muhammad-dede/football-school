@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('training', function (Blueprint $table) {
             $table->id();
-            $table->string('team_code', 20)->nullable()->index();
+            $table->string('group_code', 20)->nullable()->index();
             $table->unsignedBigInteger('period_id')->nullable()->index();
             $table->unsignedBigInteger('coach_id')->nullable()->index();
             $table->date('training_date')->nullable();

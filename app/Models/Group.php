@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Team extends Model
+class Group extends Model
 {
-    protected $table = 'team';
+    protected $table = 'group';
     public $timestamps = false;
 
     protected $guarded = [];

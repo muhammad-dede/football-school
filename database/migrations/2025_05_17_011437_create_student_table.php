@@ -14,28 +14,40 @@ return new class extends Migration
         Schema::create('student', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->date('birth_date')->nullable();
-            $table->enum('gender', ['L', 'P'])->nullable();
-            $table->string('address')->nullable();
+            $table->string('place_of_birth')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['L', 'P']);
+            $table->text('address')->nullable();
             $table->string('phone')->nullable();
+            $table->string('national_id_number')->nullable();
+            $table->string('photo')->nullable();
+            // Informasi Pemain
+            $table->enum('dominant_foot', ['KANAN', 'KIRI', 'KEDUANYA']);
+            $table->float('height_cm')->nullable();
+            $table->float('weight_kg')->nullable();
             $table->unsignedBigInteger('user_id')->nullable()->index();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('user')->onDelete('set null');
         });
 
-        Schema::create('student_team', function (Blueprint $table) {
+        Schema::create('student_enrollment', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('student_id')->index();
-            $table->string('team_code', 20)->nullable()->index();
             $table->unsignedBigInteger('period_id')->nullable()->index();
+            $table->unsignedBigInteger('student_id')->index();
+            $table->string('group_code', 20)->nullable()->index();
+            $table->string('position_code', 20)->nullable()->index();
+            $table->string('alternative_position_code', 20)->nullable()->index();
+            $table->integer('jersey_number')->nullable();
             $table->date('join_date')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
-            $table->foreign('team_code')->references('code')->on('team')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('period_id')->references('id')->on('period')->onDelete('set null');
+            $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
+            $table->foreign('group_code')->references('code')->on('group')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('alternative_position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');
         });
     }
 
@@ -45,6 +57,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('student');
-        Schema::dropIfExists('student_team');
+        Schema::dropIfExists('student_enrollment');
     }
 };

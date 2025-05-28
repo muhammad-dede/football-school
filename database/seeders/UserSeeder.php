@@ -35,12 +35,12 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'period-edit'],
             ['guard_name' => 'web', 'name' => 'period-delete'],
             ['guard_name' => 'web', 'name' => 'period-status'],
-            // Team
-            ['guard_name' => 'web', 'name' => 'team-index'],
-            ['guard_name' => 'web', 'name' => 'team-create'],
-            ['guard_name' => 'web', 'name' => 'team-edit'],
-            ['guard_name' => 'web', 'name' => 'team-delete'],
-            ['guard_name' => 'web', 'name' => 'team-status'],
+            // Group
+            ['guard_name' => 'web', 'name' => 'group-index'],
+            ['guard_name' => 'web', 'name' => 'group-create'],
+            ['guard_name' => 'web', 'name' => 'group-edit'],
+            ['guard_name' => 'web', 'name' => 'group-delete'],
+            ['guard_name' => 'web', 'name' => 'group-status'],
             // Training
             ['guard_name' => 'web', 'name' => 'training-index'],
             ['guard_name' => 'web', 'name' => 'training-create'],
@@ -93,12 +93,12 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('period-edit');
                 $role->givePermissionTo('period-delete');
                 $role->givePermissionTo('period-status');
-                // Team
-                $role->givePermissionTo('team-index');
-                $role->givePermissionTo('team-create');
-                $role->givePermissionTo('team-edit');
-                $role->givePermissionTo('team-delete');
-                $role->givePermissionTo('team-status');
+                // Group
+                $role->givePermissionTo('group-index');
+                $role->givePermissionTo('group-create');
+                $role->givePermissionTo('group-edit');
+                $role->givePermissionTo('group-delete');
+                $role->givePermissionTo('group-status');
                 // Training
                 $role->givePermissionTo('training-index');
                 $role->givePermissionTo('training-create');

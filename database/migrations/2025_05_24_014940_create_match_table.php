@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('match', function (Blueprint $table) {
             $table->id();
-            $table->string('team_code', 20)->nullable()->index();
+            $table->string('group_code', 20)->nullable()->index();
             $table->unsignedBigInteger('period_id')->nullable()->index();
             $table->unsignedBigInteger('coach_id')->nullable()->index();
             $table->string('opponent')->nullable();
             $table->date('match_date')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
-            $table->integer('team_score')->nullable();
+            $table->integer('group_score')->nullable();
             $table->integer('opponent_score')->nullable();
             $table->string('location')->nullable();
             $table->string('description')->nullable();

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
         });
 
-        Schema::create('team', function (Blueprint $table) {
+        Schema::create('group', function (Blueprint $table) {
             $table->id();
             $table->string('code', 20)->unique();
             $table->string('name');
@@ -43,7 +43,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('position');
-        Schema::dropIfExists('team');
+        Schema::dropIfExists('group');
         Schema::dropIfExists('stage');
     }
 };

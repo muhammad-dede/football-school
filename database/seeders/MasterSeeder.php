@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Position;
 use App\Models\Stage;
-use App\Models\Team;
+use App\Models\Group;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -97,50 +97,66 @@ class MasterSeeder extends Seeder
             Position::create($value);
         }
 
-        $teams = [
+        $groups = [
             [
                 'code' => 'U-13',
                 'name' => 'Under 13',
+                'age_min' => 10,
+                'age_max' => 13,
                 'description' => 'Tim untuk pemain usia di bawah 13 tahun, sebagai bagian awal akademi sepak bola.',
             ],
             [
                 'code' => 'U-15',
                 'name' => 'Under 15',
+                'age_min' => 14,
+                'age_max' => 15,
                 'description' => 'Tim untuk pemain usia di bawah 15 tahun, sering kali menjadi jenjang pembinaan usia dini.',
             ],
             [
                 'code' => 'U-16',
                 'name' => 'Under 16',
+                'age_min' => 15,
+                'age_max' => 16,
                 'description' => 'Tim untuk pemain usia di bawah 16 tahun, digunakan dalam pengembangan awal talenta muda.',
             ],
             [
                 'code' => 'U-17',
                 'name' => 'Under 17',
+                'age_min' => 16,
+                'age_max' => 17,
                 'description' => 'Tim untuk pemain usia di bawah 17 tahun, seperti Piala Dunia U-17',
             ],
             [
                 'code' => 'U-19',
                 'name' => 'Under 19',
+                'age_min' => 18,
+                'age_max' => 19,
                 'description' => 'Tim untuk pemain usia di bawah 19 tahun, digunakan dalam turnamen usia muda tingkat nasional dan internasional.',
             ],
             [
                 'code' => 'U-20',
                 'name' => 'Under 20',
+                'age_min' => 19,
+                'age_max' => 20,
                 'description' => 'Tim untuk pemain usia di bawah 20 tahun, seperti Piala Dunia U-20.',
             ],
             [
                 'code' => 'U-21',
                 'name' => 'Under 21',
+                'age_min' => 20,
+                'age_max' => 21,
                 'description' => 'Tim untuk pemain usia di bawah 21 tahun. Umumnya digunakan untuk kompetisi pemuda tingkat nasional atau internasional.',
             ],
             [
                 'code' => 'U-23',
                 'name' => 'Under 23',
+                'age_min' => 21,
+                'age_max' => 23,
                 'description' => 'Tim untuk pemain usia di bawah 23 tahun. Biasanya digunakan untuk turnamen seperti SEA Games atau Olimpiade.',
             ],
         ];
-        foreach ($teams as $key => $value) {
-            Team::create($value);
+        foreach ($groups as $key => $value) {
+            Group::create($value);
         }
 
         $stages = [
