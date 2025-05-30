@@ -33,18 +33,18 @@ return new class extends Migration
 
         Schema::create('student_enrollment', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('period_id')->nullable()->index();
             $table->unsignedBigInteger('student_id')->index();
+            $table->unsignedBigInteger('period_id')->nullable()->index();
             $table->string('group_code', 20)->nullable()->index();
             $table->string('position_code', 20)->nullable()->index();
             $table->string('alternative_position_code', 20)->nullable()->index();
             $table->integer('jersey_number')->nullable();
             $table->date('join_date')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
 
-            $table->foreign('period_id')->references('id')->on('period')->onDelete('set null');
             $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
+            $table->foreign('period_id')->references('id')->on('period')->onDelete('set null');
             $table->foreign('group_code')->references('code')->on('group')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('alternative_position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');

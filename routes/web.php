@@ -27,6 +27,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('coach/{coach}/status', [App\Http\Controllers\CoachController::class, 'status'])->name('coach.status');
     Route::post('coach/{coach}', [App\Http\Controllers\CoachController::class, 'update'])->name('coach.update');
     Route::resource('coach', App\Http\Controllers\CoachController::class)->except('update');
+    // Student
+    Route::post('student/{student}/status', [App\Http\Controllers\StudentController::class, 'status'])->name('student.status');
+    Route::post('student/{student}', [App\Http\Controllers\StudentController::class, 'update'])->name('student.update');
+    Route::resource('student', App\Http\Controllers\StudentController::class)->except('update');
 });
 
 require __DIR__ . '/auth.php';

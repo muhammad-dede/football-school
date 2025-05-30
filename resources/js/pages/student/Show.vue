@@ -14,26 +14,31 @@ import {
     Mars,
     MapPinCheck,
     IdCard,
-    CreditCard,
     FileDigit,
-    Landmark,
+    Footprints,
+    Ruler,
+    Weight,
+    Group,
+    LandPlot,
 } from "lucide-vue-next";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
+import HeadingSmall from "@/components/HeadingSmall.vue";
 import DetailItem from "@/components/DetailItem.vue";
 import { ref } from "vue";
 import usePermissions from "@/composables/usePermissions";
 import Lightbox from "@/components/Lightbox.vue";
+
 const { can } = usePermissions();
 
 const props = defineProps({
-    coach: Object,
+    student: Object,
 });
 
 const breadcrumbs = [
     { title: "Dashboard", href: "/dashboard" },
-    { title: "Pelatih", href: "/coach" },
-    { title: "Detail", href: "/coach/show" },
+    { title: "Siswa", href: "/student" },
+    { title: "Detail", href: "/student/show" },
 ];
 
 function dateFormat(date) {
@@ -50,16 +55,16 @@ const togglePhoto = () => {
 </script>
 
 <template>
-    <Head title="Detail Pelatih" />
+    <Head title="Detail Siswa" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
                 <Heading
-                    title="Detail Pelatih"
-                    description="Informasi lengkap mengenai pelatih yang terdaftar"
+                    title="Detail Siswa"
+                    description="Informasi lengkap mengenai siswa yang terdaftar"
                 />
                 <Link
-                    :href="route('coach.index')"
+                    :href="route('student.index')"
                     :class="buttonVariants({ variant: 'outline' })"
                 >
                     Kembali
@@ -69,9 +74,9 @@ const togglePhoto = () => {
                 <div
                     class="flex flex-col gap-2 p-4 border rounded-lg w-fit h-fit shrink-0 mx-auto lg:mx-0"
                 >
-                    <template v-if="coach.photo_url">
+                    <template v-if="student.photo_url">
                         <img
-                            :src="coach.photo_url"
+                            :src="student.photo_url"
                             alt="Preview"
                             class="h-48 w-48 object-cover rounded-lg border cursor-pointer"
                             @click="togglePhoto"
@@ -85,8 +90,8 @@ const togglePhoto = () => {
                         </div>
                     </template>
                     <Link
-                        v-if="can('coach-edit')"
-                        :href="route('coach.edit', coach.id)"
+                        v-if="can('student-edit')"
+                        :href="route('student.edit', student.id)"
                         :class="[
                             buttonVariants({
                                 variant: 'secondary',
@@ -101,8 +106,8 @@ const togglePhoto = () => {
                     <Tabs default-value="biodata" class="w-full">
                         <TabsList class="grid w-full grid-cols-3">
                             <TabsTrigger value="biodata">Pribadi</TabsTrigger>
-                            <TabsTrigger value="license"
-                                >Kepelatihan</TabsTrigger
+                            <TabsTrigger value="enrollment"
+                                >Kelompok</TabsTrigger
                             >
                             <TabsTrigger value="account">Akun</TabsTrigger>
                         </TabsList>
@@ -113,7 +118,7 @@ const togglePhoto = () => {
                                     <div class="grid gap-6 my-4">
                                         <DetailItem
                                             label="Nama Lengkap"
-                                            :value="coach.name"
+                                            :value="student.name"
                                             :icon="Tag"
                                             icon-color="text-blue-600"
                                             bg-color="bg-blue-100"
@@ -121,10 +126,10 @@ const togglePhoto = () => {
                                         <DetailItem
                                             label="Tempat, Tanggal Lahir"
                                             :value="
-                                                `${coach.place_of_birth}` +
+                                                `${student.place_of_birth}` +
                                                 ', ' +
                                                 `${dateFormat(
-                                                    coach.date_of_birth
+                                                    student.date_of_birth
                                                 )}`
                                             "
                                             :icon="Calendar"
@@ -134,7 +139,7 @@ const togglePhoto = () => {
                                         <DetailItem
                                             label="Jenis Kelamin"
                                             :value="
-                                                coach.gender === 'L'
+                                                student.gender === 'L'
                                                     ? 'Laki-laki'
                                                     : 'Perempuan'
                                             "
@@ -144,90 +149,131 @@ const togglePhoto = () => {
                                         />
                                         <DetailItem
                                             label="Alamat"
-                                            :value="coach.address"
+                                            :value="student.address"
                                             :icon="MapPinCheck"
                                             icon-color="text-red-600"
                                             bg-color="bg-red-100"
                                         />
                                         <DetailItem
                                             label="Telepon"
-                                            :value="coach.phone"
+                                            :value="student.phone"
                                             :icon="Phone"
                                             icon-color="text-green-600"
                                             bg-color="bg-green-100"
                                         />
                                         <DetailItem
                                             label="No. Identitas"
-                                            :value="coach.national_id_number"
+                                            :value="student.national_id_number"
                                             :icon="IdCard"
                                             icon-color="text-teal-600"
                                             bg-color="bg-teal-100"
                                         />
                                         <DetailItem
-                                            label="Status"
-                                            :value="
-                                                coach.is_active
-                                                    ? 'Aktif'
-                                                    : 'Tidak Aktif'
-                                            "
-                                            :icon="UserCheck"
-                                            icon-color="text-cyan-600"
-                                            bg-color="bg-cyan-100"
+                                            label="Kaki Dominan"
+                                            :value="student.dominant_foot"
+                                            :icon="Footprints"
+                                            icon-color="text-lime-600"
+                                            bg-color="bg-lime-100"
+                                        />
+                                        <DetailItem
+                                            label="Tinggi Badan"
+                                            :value="`${
+                                                student.height_cm ?? '-'
+                                            } Centimeter`"
+                                            :icon="Ruler"
+                                            icon-color="text-purple-600"
+                                            bg-color="bg-purple-100"
+                                        />
+                                        <DetailItem
+                                            label="Berat Badan"
+                                            :value="`${
+                                                student.weight_kg ?? '-'
+                                            } Kg`"
+                                            :icon="Weight"
+                                            icon-color="text-rose-600"
+                                            bg-color="bg-rose-100"
                                         />
                                     </div>
                                 </CardContent>
                             </Card>
                         </TabsContent>
-                        <TabsContent value="license">
+                        <TabsContent value="enrollment">
                             <Card>
                                 <CardContent>
-                                    <Heading title="Informasi Kepelatihan" />
-                                    <div class="grid gap-6 my-4">
-                                        <DetailItem
-                                            label="Lisensi Kepelatihan"
-                                            :value="
-                                                coach.coaching_license ?? '-'
-                                            "
-                                            :icon="CreditCard"
-                                            icon-color="text-lime-600"
-                                            bg-color="bg-lime-100"
+                                    <Heading title="Informasi Kelompok" />
+                                    <div
+                                        v-for="(
+                                            enrollment, index
+                                        ) in student.enrollments"
+                                        :key="index"
+                                        class="border rounded-lg p-4"
+                                    >
+                                        <HeadingSmall
+                                            :title="enrollment.period?.name"
                                         />
-                                        <DetailItem
-                                            label="Nomor Lisensi"
-                                            :value="coach.license_number ?? '-'"
-                                            :icon="FileDigit"
-                                            icon-color="text-purple-600"
-                                            bg-color="bg-purple-100"
-                                        />
-                                        <DetailItem
-                                            label="Tanggal Terbit"
-                                            :value="
-                                                dateFormat(
-                                                    coach.license_issued_at
-                                                ) ?? '-'
-                                            "
-                                            :icon="Calendar"
-                                            icon-color="text-rose-600"
-                                            bg-color="bg-rose-100"
-                                        />
-                                        <DetailItem
-                                            label="Tanggal Berakhir"
-                                            :value="
-                                                dateFormat(
-                                                    coach.license_expired_at
-                                                ) ?? '-'
-                                            "
-                                            :icon="Calendar"
-                                            icon-color="text-stone-600"
-                                            bg-color="bg-stone-100"
-                                        />
-                                        <DetailItem
-                                            label="Lembaga Kepelatihan"
-                                            :value="coach.license_issuer ?? '-'"
-                                            :icon="Landmark"
-                                            icon-color="text-sky-600"
-                                            bg-color="bg-sky-100"
-                                        />
+                                        <div
+                                            class="grid xl:grid-cols-2 gap-6 mt-4"
+                                        >
+                                            <DetailItem
+                                                label="Grup"
+                                                :value="enrollment.group?.name"
+                                                :icon="Group"
+                                                icon-color="text-pink-600"
+                                                bg-color="bg-pink-100"
+                                            />
+                                            <DetailItem
+                                                label="Posisi Bermain"
+                                                :value="
+                                                    enrollment.position?.name
+                                                "
+                                                :icon="LandPlot"
+                                                icon-color="text-orange-600"
+                                                bg-color="bg-orange-100"
+                                            />
+                                            <DetailItem
+                                                label="Alternatif Posisi"
+                                                :value="
+                                                    enrollment
+                                                        .alternative_position
+                                                        ?.name
+                                                "
+                                                :icon="LandPlot"
+                                                icon-color="text-teal-600"
+                                                bg-color="bg-teal-100"
+                                            />
+                                            <DetailItem
+                                                label="Nomor Punggung"
+                                                :value="`${
+                                                    enrollment.jersey_number ??
+                                                    ''
+                                                }`"
+                                                :icon="FileDigit"
+                                                icon-color="text-sky-600"
+                                                bg-color="bg-sky-100"
+                                            />
+                                            <DetailItem
+                                                label="Tanggal Bergabung"
+                                                :value="
+                                                    dateFormat(
+                                                        enrollment.join_date
+                                                    )
+                                                "
+                                                :icon="Calendar"
+                                                icon-color="text-fuchsia-600"
+                                                bg-color="bg-fuchsia-100"
+                                            />
+                                            <DetailItem
+                                                label="Status"
+                                                :value="
+                                                    enrollment.is_active
+                                                        ? 'Aktif'
+                                                        : 'Tidak Aktif'
+                                                "
+                                                :icon="UserCheck"
+                                                icon-color="text-cyan-600"
+                                                bg-color="bg-cyan-100"
+                                            />
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -239,7 +285,7 @@ const togglePhoto = () => {
                                     <div class="grid gap-6 my-4">
                                         <DetailItem
                                             label="Email"
-                                            :value="coach.user?.email"
+                                            :value="student.user?.email"
                                             :icon="Mail"
                                             icon-color="text-pink-600"
                                             bg-color="bg-pink-100"
@@ -247,7 +293,7 @@ const togglePhoto = () => {
                                         <DetailItem
                                             label="Status"
                                             :value="
-                                                coach.user?.is_active
+                                                student.user?.is_active
                                                     ? 'Aktif'
                                                     : 'Tidak Aktif'
                                             "
@@ -267,7 +313,7 @@ const togglePhoto = () => {
 
     <Lightbox
         :show="showPhoto"
-        :image-url="coach.photo_url"
+        :image-url="student.photo_url"
         @close="togglePhoto"
     />
 </template>

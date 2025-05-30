@@ -20,6 +20,7 @@ import {
     UserCog,
     CalendarRange,
     Group,
+    FileUser,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 import usePermissions from "@/composables/usePermissions";
@@ -72,6 +73,12 @@ const dataNavItems = [
         icon: UserCog,
         permission: "coach-index",
     },
+    {
+        title: "Siswa",
+        href: "/student",
+        icon: FileUser,
+        permission: "student-index",
+    },
 ];
 </script>
 
@@ -102,7 +109,7 @@ const dataNavItems = [
                 :items="masterNavItems"
             />
             <NavMain
-                v-if="canAny('coach-index')"
+                v-if="canAny('coach-index', 'student-index')"
                 group-label="Data"
                 :items="dataNavItems"
             />
