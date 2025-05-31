@@ -67,6 +67,8 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'student-delete'],
             ['guard_name' => 'web', 'name' => 'student-status'],
             ['guard_name' => 'web', 'name' => 'student-show'],
+            ['guard_name' => 'web', 'name' => 'student-enrollment-create'],
+            ['guard_name' => 'web', 'name' => 'student-enrollment-edit'],
         ];
 
         foreach ($permissions as $key => $value) {
@@ -125,6 +127,8 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('student-delete');
                 $role->givePermissionTo('student-status');
                 $role->givePermissionTo('student-show');
+                $role->givePermissionTo('student-enrollment-create');
+                $role->givePermissionTo('student-enrollment-edit');
             }
             if ($role->name === 'Leader') {
                 // Dashboard

@@ -42,8 +42,8 @@ const form = useForm({
 });
 
 const genders = [
-    { label: "Laki-laki", value: "L" },
-    { label: "Perempuan", value: "P" },
+    { label: "Laki-laki", value: "MALE" },
+    { label: "Perempuan", value: "FEMALE" },
 ];
 
 const photoPreview = ref(null);

@@ -10,31 +10,16 @@ import { Card, CardContent } from "@/components/ui/card/index";
 import { Button, buttonVariants } from "@/components/ui/button/index";
 import {
     SquarePlus,
-    Mail,
     Phone,
-    MoreHorizontal,
-    UserCheck,
+    CalendarDays,
+    IdCard,
+    Timer,
+    CreditCard,
+    FileDigit,
+    Landmark,
+    Ruler,
+    Weight,
 } from "lucide-vue-next";
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge/index";
@@ -45,6 +30,7 @@ import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
 import { useInitials } from "@/composables/useInitials";
 import usePermissions from "@/composables/usePermissions";
+import InfoItem from "@/components/InfoItem.vue";
 
 const { getInitials } = useInitials();
 const { can } = usePermissions();
@@ -64,7 +50,6 @@ const breadcrumbs = [
 const search = ref(props.search_term);
 const perPage = ref(props.per_page_term);
 const filter = ref(props.filter_term);
-const studentToDelete = ref(null);
 
 const dataControl = () => {
     router.get(
@@ -92,19 +77,50 @@ watch([perPage, filter], () => {
     dataControl();
 });
 
-const confirmDelete = (student) => {
-    studentToDelete.value = student;
+const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "-";
+
+    const date = new Date(timestamp);
+
+    const datePart = date.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+
+    const timePart = date.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+
+    return `${datePart}, ${timePart}`;
 };
 
-const destroy = () => {
-    if (!studentToDelete.value) return;
-    const studentId = studentToDelete.value.id;
-    router.delete(route("student.destroy", studentId), {
-        preserveScroll: true,
-        onFinish: () => {
-            studentToDelete.value = null; // Memastikan lagi
-        },
-    });
+const calculateAge = (birthDate) => {
+    if (!birthDate) return "-";
+
+    const today = new Date();
+    const birth = new Date(birthDate);
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+
+    return age;
+};
+
+const setLabelFoot = (foot) => {
+    if (foot === "RIGHT") {
+        return "Kanan";
+    } else if (foot === "LEFT") {
+        return "Kiri";
+    } else if (foot === "BOTH") {
+        return "Keduanya";
+    }
 };
 </script>
 
@@ -139,120 +155,101 @@ const destroy = () => {
                     <Card
                         v-for="item in students.data"
                         :key="item.id"
-                        class="py-4"
+                        class="py-0"
                     >
-                        <CardContent class="px-4">
-                            <div
-                                class="flex lg:items-center gap-4 relative overflow-hidden items-start"
-                            >
-                                <Avatar class="size-12">
-                                    <AvatarImage
-                                        :src="item.photo_url"
-                                        alt="photo"
+                        <CardContent class="px-4 grid divide-y divide-gray-100">
+                            <div class="flex justify-between items-center py-4">
+                                <InfoItem
+                                    :label="formatTimestamp(item.created_at)"
+                                    :icon="CalendarDays"
+                                />
+                                <Badge
+                                    :variant="
+                                        item.is_active
+                                            ? 'default'
+                                            : 'destructive'
+                                    "
+                                    class="px-3 py-2 rounded-full h-fit"
+                                >
+                                    {{
+                                        item.is_active ? "Aktif" : "Tidak Aktif"
+                                    }}
+                                </Badge>
+                            </div>
+                            <div class="flex relative overflow-hidden">
+                                <div class="absolute top-2.5 left-0">
+                                    <Avatar class="size-14 border">
+                                        <AvatarImage
+                                            :src="item.photo_url"
+                                            alt="photo"
+                                        />
+                                        <AvatarFallback>
+                                            {{ getInitials(item.name) }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </div>
+                                <div
+                                    class="pl-18 w-[85%] flex flex-col justify-between lg:flex-row lg:items-center lg:gap-4"
+                                >
+                                    <InfoItem
+                                        :label="item.national_id_number"
+                                        :value="item.name"
+                                        :icon="IdCard"
                                     />
-                                    <AvatarFallback>
-                                        {{ getInitials(item.name) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div
-                                    class="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-4"
-                                >
-                                    <div
-                                        class="flex flex-col lg:min-w-xs lg:max-w-sm"
-                                    >
-                                        <h5 class="font-bold">
-                                            {{ item.name }}
-                                        </h5>
-                                        <div
-                                            class="flex items-center font-semibold gap-1 text-gray-500 text-sm"
-                                        >
-                                            <Mail class="size-4" />
-                                            {{ item.user?.email }}
-                                        </div>
-                                    </div>
-                                    <Badge
-                                        variant="outline"
-                                        class="p-2 rounded-full h-fit"
-                                    >
-                                        <Phone />
-                                        {{ item.phone }}
-                                    </Badge>
-                                    <Badge
-                                        :variant="
-                                            item.enrollment?.is_active
-                                                ? 'secondary'
-                                                : 'destructive'
+                                    <InfoItem
+                                        reverse
+                                        label="Telepon"
+                                        :value="item.phone"
+                                        :icon="Phone"
+                                    />
+                                    <InfoItem
+                                        reverse
+                                        label="Usia"
+                                        :value="`${calculateAge(
+                                            item.date_of_birth
+                                        )} Tahun`"
+                                        :icon="Timer"
+                                    />
+                                </div>
+                                <div class="absolute top-5 right-0">
+                                    <Link
+                                        :href="route('student.show', item.id)"
+                                        :class="
+                                            buttonVariants({
+                                                variant: 'secondary',
+                                            })
                                         "
-                                        class="p-2 rounded-full h-fit"
                                     >
-                                        <UserCheck />
-                                        {{
-                                            item.is_active
-                                                ? "Aktif"
-                                                : "Tidak Aktif"
-                                        }}
-                                    </Badge>
+                                        Kelola
+                                    </Link>
                                 </div>
-                                <div
-                                    class="absolute top-0 right-0 flex items-start justify-center h-full lg:items-center"
-                                >
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger as-child>
-                                            <Button
-                                                variant="outline"
-                                                class="w-8 h-8 p-0"
-                                            >
-                                                <MoreHorizontal
-                                                    class="w-4 h-4"
-                                                />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuLabel>
-                                                Aksi
-                                            </DropdownMenuLabel>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem
-                                                v-if="can('student-edit')"
-                                                asChild
-                                            >
-                                                <Link
-                                                    :href="
-                                                        route(
-                                                            'student.edit',
-                                                            item.id
-                                                        )
-                                                    "
-                                                >
-                                                    Ubah
-                                                </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                v-if="can('student-show')"
-                                                asChild
-                                            >
-                                                <Link
-                                                    :href="
-                                                        route(
-                                                            'student.show',
-                                                            item.id
-                                                        )
-                                                    "
-                                                >
-                                                    Detail
-                                                </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                v-if="can('student-delete')"
-                                                @select="
-                                                    () => confirmDelete(item)
-                                                "
-                                            >
-                                                Hapus
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
+                            </div>
+                            <div
+                                class="flex flex-col justify-between gap-x-4 lg:flex-row"
+                            >
+                                <InfoItem
+                                    label="Kaki Dominan"
+                                    :value="setLabelFoot(item.dominant_foot)"
+                                    :icon="CreditCard"
+                                    color="cyan"
+                                    withColor
+                                />
+                                <InfoItem
+                                    label="Tinggi Badan"
+                                    :value="`${
+                                        item.height_cm ?? '-'
+                                    } Centimeter`"
+                                    :icon="Ruler"
+                                    color="gray"
+                                    withColor
+                                />
+                                <InfoItem
+                                    label="Berat Badan"
+                                    :value="`${item.weight_kg ?? '-'} Kilogram`"
+                                    :icon="Weight"
+                                    color="teal"
+                                    withColor
+                                />
                             </div>
                         </CardContent>
                     </Card>
@@ -276,23 +273,4 @@ const destroy = () => {
             <PaginationLinks :paginator="students" />
         </MainContent>
     </AppLayout>
-    <AlertDialog :open="!!studentToDelete">
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>
-                    Apakah Anda benar-benar yakin?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                    Tindakan ini tidak dapat dibatalkan. Ini akan secara
-                    permanen menghapus data terkait dari server kami.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel @click="studentToDelete = null">
-                    Batal
-                </AlertDialogCancel>
-                <AlertDialogAction @click="destroy">Hapus</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
 </template>

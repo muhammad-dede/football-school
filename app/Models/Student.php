@@ -31,4 +31,9 @@ class Student extends Model
             ->where('is_active', true)
             ->latest();
     }
+
+    public function billings()
+    {
+        return $this->hasMany(Billing::class, 'student_id', 'id');
+    }
 }

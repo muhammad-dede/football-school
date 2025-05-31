@@ -89,7 +89,7 @@ class CoachController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'place_of_birth' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date', 'before:today'],
-            'gender' => ['required', 'in:L,P'],
+            'gender' => ['required', 'in:MALE,FEMALE'],
             'address' => ['required', 'string'],
             'phone' => ['required', 'string', 'max:255'],
             'national_id_number' => ['required', 'string', 'max:255'],
@@ -135,7 +135,7 @@ class CoachController extends Controller
                 ]);
             }
             DB::commit();
-            return redirect()->route('coach.index')->with('success', 'Pelatih berhasil ditambahkan');
+            return redirect()->route('coach.show', $coach->id)->with('success', 'Pelatih berhasil ditambahkan');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -183,7 +183,7 @@ class CoachController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'place_of_birth' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date', 'before:today'],
-            'gender' => ['required', 'in:L,P'],
+            'gender' => ['required', 'in:MALE,FEMALE'],
             'address' => ['required', 'string'],
             'phone' => ['required', 'string', 'max:255'],
             'national_id_number' => ['required', 'string', 'max:255'],
@@ -229,7 +229,7 @@ class CoachController extends Controller
                 ]);
             }
             DB::commit();
-            return redirect()->route('coach.index')->with('success', 'Pelatih berhasil diubah');
+            return redirect()->route('coach.show', $coach->id)->with('success', 'Pelatih berhasil diubah');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -252,7 +252,7 @@ class CoachController extends Controller
             $user->delete();
             $coach->delete();
             DB::commit();
-            return redirect()->back()->with('success', 'Pelatih berhasil dihapus');
+            return redirect()->route('coach.index')->with('success', 'Pelatih berhasil dihapus');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;

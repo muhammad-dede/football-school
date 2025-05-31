@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatusBilling;
+use App\Models\Billing;
 use App\Models\Group;
 use App\Models\Period;
 use App\Models\Position;
 use App\Models\Student;
+use App\Models\StudentEnrollment;
 use App\Models\User;
 use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
@@ -35,12 +38,13 @@ class StudentController extends Controller
         'weight_kg' => 'Berat Badan',
         'email' => 'Email',
         'password' => 'Password',
-        'enrollments.*.period_id' => 'Periode',
-        'enrollments.*.group_code' => 'Grup',
-        'enrollments.*.position_code' => 'Posisi',
-        'enrollments.*.alternative_position_code' => 'Alternatif Posisi',
-        'enrollments.*.jersey_number' => 'Nomor Punggung',
-        'enrollments.*.join_date' => 'Tanggal Bergabung',
+        // Enrollment
+        'period_id' => 'Periode',
+        'group_code' => 'Grup',
+        'position_code' => 'Posisi',
+        'alternative_position_code' => 'Alternatif Posisi',
+        'jersey_number' => 'Nomor Punggung',
+        'join_date' => 'Tanggal Bergabung',
     ];
 
     public function __construct()
@@ -93,11 +97,7 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-create');
 
-        return Inertia::render('student/Create', [
-            'periods' => $this->periods,
-            'groups' => $this->groups,
-            'positions' => $this->positions,
-        ]);
+        return Inertia::render('student/Create');
     }
 
     /**
@@ -111,23 +111,16 @@ class StudentController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'place_of_birth' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date', 'before:today'],
-            'gender' => ['required', 'in:L,P'],
+            'gender' => ['required', 'in:MALE,FEMALE'],
             'address' => ['required', 'string'],
             'phone' => ['required', 'string', 'max:255'],
             'national_id_number' => ['required', 'string', 'max:255'],
             'photo' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'dominant_foot' => ['required', 'string', 'in:KANAN,KIRI,KEDUANYA'],
+            'dominant_foot' => ['required', 'string', 'in:RIGHT,LEFT,BOTH'],
             'height_cm' => ['required', 'numeric', 'min:100', 'max:300'],
             'weight_kg' => ['required', 'numeric', 'min:20', 'max:300'],
             'email' => ['required', 'email', 'max:255', 'unique:user,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'enrollments' => ['required', 'array'],
-            'enrollments.*.period_id' => ['required', 'string', 'exists:period,id'],
-            'enrollments.*.group_code' => ['required', 'string', 'exists:group,code'],
-            'enrollments.*.position_code' => ['required', 'string', 'exists:position,code'],
-            'enrollments.*.alternative_position_code' => ['required', 'string', 'exists:position,code'],
-            'enrollments.*.jersey_number' => ['required', 'numeric', 'min:1', 'max:100'],
-            'enrollments.*.join_date' => ['required', 'date'],
         ], [], $this->attributes);
 
         try {
@@ -158,22 +151,8 @@ class StudentController extends Controller
                     'photo' => $path,
                 ]);
             }
-            if ($request->enrollments) {
-                foreach ($request->enrollments as $key => $enrollment) {
-                    $student->enrollments()->create([
-                        'student_id' => $student->id,
-                        'period_id' => $enrollment['period_id'],
-                        'group_code' => $enrollment['group_code'],
-                        'position_code' => $enrollment['position_code'],
-                        'alternative_position_code' => $enrollment['alternative_position_code'],
-                        'jersey_number' => $enrollment['jersey_number'],
-                        'join_date' => $enrollment['join_date'],
-                        'is_active' => false,
-                    ]);
-                }
-            }
             DB::commit();
-            return redirect()->route('student.index')->with('success', 'Siswa berhasil ditambahkan');
+            return redirect()->route('student.show', $student->id)->with('success', 'Siswa berhasil ditambahkan');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -187,10 +166,15 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-show');
 
-        $student = Student::with(['user', 'enrollments', 'enrollments.period', 'enrollments.group', 'enrollments.position', 'enrollments.alternativePosition'])->findOrFail($id);
+        $student = Student::with(['user'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
+        $enrollments = StudentEnrollment::with(['student', 'period', 'group', 'position', 'alternativePosition'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
+        $billings = Billing::with(['student', 'period', 'billingType'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
+
         return Inertia::render('student/Show', [
             'student' => $student,
+            'enrollments' => $enrollments,
+            'billings' => $billings,
         ]);
     }
 
@@ -204,9 +188,6 @@ class StudentController extends Controller
         $student = Student::with(['enrollments', 'user'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
         return Inertia::render('student/Edit', [
-            'periods' => $this->periods,
-            'groups' => $this->groups,
-            'positions' => $this->positions,
             'student' => $student,
         ]);
     }
@@ -218,29 +199,22 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-edit');
 
-        $student = Student::with(['enrollments', 'user'])->findOrFail($id);
+        $student = Student::findOrFail($id);
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'place_of_birth' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date', 'before:today'],
-            'gender' => ['required', 'in:L,P'],
+            'gender' => ['required', 'in:MALE,FEMALE'],
             'address' => ['required', 'string'],
             'phone' => ['required', 'string', 'max:255'],
             'national_id_number' => ['required', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'dominant_foot' => ['required', 'string', 'in:KANAN,KIRI,KEDUANYA'],
+            'dominant_foot' => ['required', 'string', 'in:RIGHT,LEFT,BOTH'],
             'height_cm' => ['required', 'numeric', 'min:100', 'max:300'],
             'weight_kg' => ['required', 'numeric', 'min:20', 'max:300'],
             'email' => ['required', 'email', 'max:255', 'unique:user,email,' . $student->user->id . ',id'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'enrollments' => ['required', 'array'],
-            'enrollments.*.period_id' => ['required', 'string', 'exists:period,id'],
-            'enrollments.*.group_code' => ['required', 'string', 'exists:group,code'],
-            'enrollments.*.position_code' => ['required', 'string', 'exists:position,code'],
-            'enrollments.*.alternative_position_code' => ['required', 'string', 'exists:position,code'],
-            'enrollments.*.jersey_number' => ['required', 'numeric', 'min:1', 'max:100'],
-            'enrollments.*.join_date' => ['required', 'date'],
         ], [], $this->attributes);
 
         try {
@@ -263,29 +237,13 @@ class StudentController extends Controller
                     'photo' => $path,
                 ]);
             }
-            if ($request->enrollments) {
-                foreach ($request->enrollments as $key => $enrollment) {
-                    $student->enrollments()->updateOrCreate([
-                        'student_id' => $student->id,
-                        'period_id' => $enrollment['period_id'] ?? null,
-                    ], [
-                        'student_id' => $student->id,
-                        'period_id' => $enrollment['period_id'],
-                        'group_code' => $enrollment['group_code'],
-                        'position_code' => $enrollment['position_code'],
-                        'alternative_position_code' => $enrollment['alternative_position_code'],
-                        'jersey_number' => $enrollment['jersey_number'],
-                        'join_date' => $enrollment['join_date'],
-                    ]);
-                }
-            }
             $student->user()->update([
                 'name' => strtoupper($request->name),
                 'email' => strtolower($request->email),
                 'password' => $request->password ? bcrypt($request->password) : $student->user->password,
             ]);
             DB::commit();
-            return redirect()->route('student.index')->with('success', 'Siswa berhasil diubah');
+            return redirect()->route('student.show', $student->id)->with('success', 'Siswa berhasil diubah');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -308,7 +266,68 @@ class StudentController extends Controller
             $user->delete();
             $student->delete();
             DB::commit();
-            return redirect()->back()->with('success', 'Siswa berhasil dihapus');
+            return redirect()->route('student.index')->with('success', 'Siswa berhasil dihapus');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    /**
+     * Show the form for creating a new enrollment.
+     */
+    public function createEnrollment(string $id)
+    {
+        $this->checkPermission('student-enrollment-create');
+
+        $student = Student::findOrFail($id);
+
+        return Inertia::render('student/enrollment/Create', [
+            'periods' => $this->periods,
+            'groups' => $this->groups,
+            'positions' => $this->positions,
+            'student' => $student,
+        ]);
+    }
+
+    /**
+     * Store a newly created enrollment in storage.
+     */
+    public function storeEnrollment(Request $request, string $id)
+    {
+        $this->checkPermission('student-enrollment-create');
+
+        $student = Student::findOrFail($id);
+
+        $request->validate([
+            'period_id' => ['required', 'string', 'exists:period,id'],
+            'group_code' => ['required', 'string', 'exists:group,code'],
+            'position_code' => ['required', 'string', 'exists:position,code'],
+            'alternative_position_code' => ['required', 'string', 'exists:position,code'],
+            'jersey_number' => ['required', 'numeric', 'min:1', 'max:100'],
+            'join_date' => ['required', 'date'],
+        ], [], $this->attributes);
+
+        try {
+            DB::beginTransaction();
+            $student->enrollment()->create([
+                'period_id' => $request->period_id,
+                'group_code' => $request->group_code,
+                'position_code' => $request->position_code,
+                'alternative_position_code' => $request->alternative_position_code,
+                'jersey_number' => $request->jersey_number,
+                'join_date' => $request->join_date,
+                'is_active' => false,
+            ]);
+            $student->billings()->create([
+                'period_id' => $request->period_id,
+                'billing_type_code' => 'REGISTRATION',
+                'amount' => 1000000,
+                'due_date' => now()->addDays(7),
+                'status' => StatusBilling::UNPAID,
+            ]);
+            DB::commit();
+            return redirect()->route('student.show', $student->id)->with('success', 'Team berhasil ditambahkan');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;

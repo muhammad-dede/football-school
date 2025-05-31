@@ -16,13 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('place_of_birth')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->enum('gender', ['L', 'P']);
+            $table->enum('gender', ['MALE', 'FEMALE']);
             $table->text('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('national_id_number')->nullable();
             $table->string('photo')->nullable();
             // Informasi Pemain
-            $table->enum('dominant_foot', ['KANAN', 'KIRI', 'KEDUANYA']);
+            $table->enum('dominant_foot', ['RIGHT', 'LEFT', 'BOTH']);
             $table->float('height_cm')->nullable();
             $table->float('weight_kg')->nullable();
             $table->unsignedBigInteger('user_id')->nullable()->index();
@@ -49,6 +49,43 @@ return new class extends Migration
             $table->foreign('position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('alternative_position_code')->references('code')->on('position')->onDelete('set null')->onUpdate('cascade');
         });
+
+        Schema::create('billing', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('student_id')->nullable()->index();
+            $table->unsignedBigInteger('period_id')->nullable()->index();
+            $table->string('billing_type_code')->nullable()->index();
+            $table->decimal('amount', 12, 2);
+            $table->date('due_date')->nullable();
+            $table->string('status')->default('UNPAID');
+            $table->timestamps();
+
+            $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
+            $table->foreign('period_id')->references('id')->on('student')->onDelete('set null');
+            $table->foreign('billing_type_code')->references('code')->on('billing_type')->onDelete('set null')->onUpdate('cascade');
+        });
+
+        Schema::create('payment', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('billing_id')->nullable()->index();
+            $table->decimal('amount', 12, 2); // jumlah dibayar
+            $table->date('payment_date')->nullable(); // diisi saat payment sukses
+            $table->string('method')->nullable(); // contoh: 'midtrans', 'manual', 'transfer'
+            $table->string('status')->default('PENDING'); // pending, paid, failed, expired, cancelled
+            // Payment gateway
+            $table->string('gateway')->nullable(); // midtrans, xendit, dll
+            $table->string('order_id')->nullable(); // dari gateway, unik
+            $table->string('transaction_id')->nullable(); // id dari Midtrans
+            $table->string('payment_type')->nullable(); // e.g. gopay, bank_transfer
+            $table->string('va_number')->nullable(); // untuk virtual account
+            $table->json('payload')->nullable(); // seluruh response JSON disimpan (opsional)
+            // Manual Transfer
+            $table->string('reference_number')->nullable(); // jika manual transfer
+            $table->text('notes')->nullable();
+            $table->timestamps();
+
+            $table->foreign('billing_id')->references('id')->on('billing')->onDelete('cascade');
+        });
     }
 
     /**
@@ -58,5 +95,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('student');
         Schema::dropIfExists('student_enrollment');
+        Schema::dropIfExists('billing');
+        Schema::dropIfExists('payment');
     }
 };

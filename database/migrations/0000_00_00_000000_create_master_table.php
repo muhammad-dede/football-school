@@ -35,6 +35,12 @@ return new class extends Migration
             $table->unsignedInteger('order');
             $table->boolean('is_active')->default(true);
         });
+
+        Schema::create('billing_type', function (Blueprint $table) {
+            $table->id();
+            $table->string('code', 20)->unique();
+            $table->string('name'); // Contoh: Pendaftaran, SPP
+        });
     }
 
     /**
@@ -45,5 +51,6 @@ return new class extends Migration
         Schema::dropIfExists('position');
         Schema::dropIfExists('group');
         Schema::dropIfExists('stage');
+        Schema::dropIfExists('billing_type');
     }
 };

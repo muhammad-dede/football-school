@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BillingType;
 use App\Models\Position;
 use App\Models\Stage;
 use App\Models\Group;
@@ -187,6 +188,17 @@ class MasterSeeder extends Seeder
         ];
         foreach ($stages as $key => $value) {
             Stage::create($value);
+        }
+
+        $billing_types = [
+            [
+                'code' => 'REGISTRATION',
+                'name' => 'Registrasi',
+            ],
+        ];
+
+        foreach ($billing_types as $key => $value) {
+            BillingType::create($value);
         }
     }
 }

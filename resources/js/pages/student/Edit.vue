@@ -25,9 +25,6 @@ import {
 } from "@/components/ui/select";
 
 const props = defineProps({
-    periods: Object,
-    groups: Object,
-    positions: Object,
     student: Object,
 });
 
@@ -36,8 +33,6 @@ const breadcrumbs = [
     { title: "Siswa", href: "/student" },
     { title: "Ubah", href: "/student/edit" },
 ];
-
-const today = new Date().toISOString().split("T")[0];
 
 const form = useForm({
     name: props.student.name ?? "",
@@ -54,25 +49,17 @@ const form = useForm({
     email: props.student?.user?.email ?? "",
     password: "",
     password_confirmation: "",
-    enrollments: props.student?.enrollments?.map((e) => ({
-        period_id: e.period_id,
-        group_code: e.group_code,
-        position_code: e.position_code,
-        alternative_position_code: e.alternative_position_code,
-        jersey_number: e.jersey_number,
-        join_date: e.join_date ?? today,
-    })),
 });
 
 const genders = [
-    { label: "Laki-laki", value: "L" },
-    { label: "Perempuan", value: "P" },
+    { label: "Laki-laki", value: "MALE" },
+    { label: "Perempuan", value: "FEMALE" },
 ];
 
 const foots = [
-    { label: "Kanan", value: "KANAN" },
-    { label: "Kiri", value: "KIRI" },
-    { label: "Keduanya", value: "KEDUANYA" },
+    { label: "Kanan", value: "RIGHT" },
+    { label: "Kiri", value: "LEFT" },
+    { label: "Keduanya", value: "BOTH" },
 ];
 
 const photoPreview = ref(null);
@@ -315,199 +302,6 @@ const submit = () => {
                                     v-model="form.weight_kg"
                                 />
                                 <InputError :message="form.errors.weight_kg" />
-                            </div>
-                        </div>
-                        <Separator class="my-4" />
-                        <Heading title="Informasi Kelompok" />
-                        <div
-                            v-for="(enrollment, index) in form.enrollments"
-                            :key="index"
-                            class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6 my-4"
-                        >
-                            <div class="w-full flex flex-col gap-2">
-                                <Label :for="`period_${index}`">Periode</Label>
-                                <Select
-                                    v-model="enrollment.period_id"
-                                    :name="`period_${index}`"
-                                >
-                                    <SelectTrigger
-                                        :id="`period_${index}`"
-                                        class="w-full"
-                                    >
-                                        <SelectValue
-                                            placeholder="Pilih Periode"
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem
-                                                v-for="(period, i) in periods"
-                                                :key="i"
-                                                :value="period.id"
-                                            >
-                                                {{ period.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <InputError
-                                    :message="
-                                        form.errors[
-                                            `enrollments.${index}.period_id`
-                                        ]
-                                    "
-                                />
-                            </div>
-                            <div class="w-full flex flex-col gap-2">
-                                <Label :for="`group_code_${index}`">Grup</Label>
-                                <Select
-                                    v-model="enrollment.group_code"
-                                    :name="`group_code_${index}`"
-                                >
-                                    <SelectTrigger
-                                        :id="`group_code_${index}`"
-                                        class="w-full"
-                                    >
-                                        <SelectValue placeholder="Pilih Grup" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem
-                                                v-for="(group, i) in groups"
-                                                :key="i"
-                                                :value="group.code"
-                                            >
-                                                {{ group.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <InputError
-                                    :message="
-                                        form.errors[
-                                            `enrollments.${index}.group_code`
-                                        ]
-                                    "
-                                />
-                            </div>
-                            <div class="w-full flex flex-col gap-2">
-                                <Label :for="`position_code_${index}`"
-                                    >Posisi</Label
-                                >
-                                <Select
-                                    v-model="enrollment.position_code"
-                                    :name="`position_code_${index}`"
-                                >
-                                    <SelectTrigger
-                                        :id="`position_code_${index}`"
-                                        class="w-full"
-                                    >
-                                        <SelectValue
-                                            placeholder="Pilih Posisi"
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem
-                                                v-for="(
-                                                    position, i
-                                                ) in positions"
-                                                :key="i"
-                                                :value="position.code"
-                                            >
-                                                {{ position.code }} -
-                                                {{ position.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <InputError
-                                    :message="
-                                        form.errors[
-                                            `enrollments.${index}.position_code`
-                                        ]
-                                    "
-                                />
-                            </div>
-                            <div class="w-full flex flex-col gap-2">
-                                <Label
-                                    :for="`alternative_position_code_${index}`"
-                                    >Alternatif Posisi</Label
-                                >
-                                <Select
-                                    v-model="
-                                        enrollment.alternative_position_code
-                                    "
-                                    :name="`alternative_position_code_${index}`"
-                                >
-                                    <SelectTrigger
-                                        :id="`alternative_position_code_${index}`"
-                                        class="w-full"
-                                    >
-                                        <SelectValue
-                                            placeholder="Pilih ALternatif Posisi"
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem
-                                                v-for="(
-                                                    position, i
-                                                ) in positions"
-                                                :key="i"
-                                                :value="position.code"
-                                            >
-                                                {{ position.code }} -
-                                                {{ position.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <InputError
-                                    :message="
-                                        form.errors[
-                                            `enrollments.${index}.alternative_position_code`
-                                        ]
-                                    "
-                                />
-                            </div>
-                            <div class="w-full flex flex-col gap-2">
-                                <Label :for="`jersey_number_${index}`"
-                                    >Nomor Punggung</Label
-                                >
-                                <Input
-                                    :id="`jersey_number_${index}`"
-                                    type="number"
-                                    :name="`jersey_number_${index}`"
-                                    placeholder="Input Nomor Punggung"
-                                    autocomplete="off"
-                                    v-model="enrollment.jersey_number"
-                                />
-                                <InputError
-                                    :message="
-                                        form.errors[
-                                            `enrollments.${index}.jersey_number`
-                                        ]
-                                    "
-                                />
-                            </div>
-                            <div class="w-full flex flex-col gap-2">
-                                <Label :for="`join_date_${index}`"
-                                    >Tanggal Bergabung</Label
-                                >
-                                <Input
-                                    :id="`join_date_${index}`"
-                                    type="date"
-                                    :name="`join_date_${index}`"
-                                    v-model="enrollment.join_date"
-                                />
-                                <InputError
-                                    :message="
-                                        form.errors[
-                                            `enrollments.${index}.join_date`
-                                        ]
-                                    "
-                                />
                             </div>
                         </div>
                         <Separator class="my-4" />
