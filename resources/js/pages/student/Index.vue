@@ -158,7 +158,7 @@ const setLabelFoot = (foot) => {
                         class="py-0"
                     >
                         <CardContent class="px-4 grid divide-y divide-gray-100">
-                            <div class="flex justify-between items-center py-4">
+                            <div class="flex justify-between items-center">
                                 <InfoItem
                                     :label="formatTimestamp(item.created_at)"
                                     :icon="CalendarDays"
@@ -231,8 +231,7 @@ const setLabelFoot = (foot) => {
                                     label="Kaki Dominan"
                                     :value="setLabelFoot(item.dominant_foot)"
                                     :icon="CreditCard"
-                                    color="cyan"
-                                    withColor
+                                    background
                                 />
                                 <InfoItem
                                     label="Tinggi Badan"
@@ -240,15 +239,13 @@ const setLabelFoot = (foot) => {
                                         item.height_cm ?? '-'
                                     } Centimeter`"
                                     :icon="Ruler"
-                                    color="gray"
-                                    withColor
+                                    background
                                 />
                                 <InfoItem
                                     label="Berat Badan"
                                     :value="`${item.weight_kg ?? '-'} Kilogram`"
                                     :icon="Weight"
-                                    color="teal"
-                                    withColor
+                                    background
                                 />
                             </div>
                         </CardContent>

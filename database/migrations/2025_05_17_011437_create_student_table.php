@@ -68,19 +68,19 @@ return new class extends Migration
         Schema::create('payment', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('billing_id')->nullable()->index();
-            $table->decimal('amount', 12, 2); // jumlah dibayar
-            $table->date('payment_date')->nullable(); // diisi saat payment sukses
-            $table->string('method')->nullable(); // contoh: 'midtrans', 'manual', 'transfer'
-            $table->string('status')->default('PENDING'); // pending, paid, failed, expired, cancelled
-            // Payment gateway
-            $table->string('gateway')->nullable(); // midtrans, xendit, dll
-            $table->string('order_id')->nullable(); // dari gateway, unik
-            $table->string('transaction_id')->nullable(); // id dari Midtrans
-            $table->string('payment_type')->nullable(); // e.g. gopay, bank_transfer
-            $table->string('va_number')->nullable(); // untuk virtual account
-            $table->json('payload')->nullable(); // seluruh response JSON disimpan (opsional)
-            // Manual Transfer
-            $table->string('reference_number')->nullable(); // jika manual transfer
+            $table->decimal('amount', 12, 2);
+            $table->date('payment_date')->nullable();
+            $table->enum('method', ['TRANSFER', 'CASH']);
+            // Informasi Transfer (jika metode = TRANSFER)
+            $table->string('receiver_bank_name')->nullable();
+            $table->string('receiver_account_number')->nullable();
+            $table->string('receiver_account_holder_name')->nullable();
+            $table->string('sender_bank_name')->nullable();
+            $table->string('sender_account_number')->nullable();
+            $table->string('sender_account_holder_name')->nullable();
+            $table->string('proof_file')->nullable();
+            $table->string('reference_number')->nullable();
+            // Catatan Pembayaran
             $table->text('notes')->nullable();
             $table->timestamps();
 

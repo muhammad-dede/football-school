@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-    withColor: {
+    background: {
         type: Boolean,
         default: false,
     },
@@ -14,16 +14,12 @@ defineProps({
         type: [Object, Function],
         required: true,
     },
-    color: {
-        type: String,
-        default: "gray",
-    },
 });
 </script>
 
 <template>
     <div
-        v-if="!withColor"
+        v-if="!background"
         :class="[
             // 'flex lg:min-w-xs lg:max-w-sm py-4',
             'flex py-4',
@@ -49,15 +45,15 @@ defineProps({
     <div v-else class="flex gap-2 items-start py-4">
         <div
             class="rounded-xl flex items-center justify-center size-10 shrink-0"
-            :class="[`bg-${color}-100`, 'p-2']"
+            :class="[`bg-gray-100`, 'p-2']"
         >
-            <component :is="icon" class="size-4" :class="`text-${color}-600`" />
+            <component :is="icon" class="size-4" :class="`text-gray-600`" />
         </div>
         <div class="grid gap-0.5">
             <p class="text-xs font-semibold text-gray-500">
                 {{ label }}
             </p>
-            <span :class="`text-sm font-bold text-${color}-600`">
+            <span :class="`text-sm font-bold text-gray-600`">
                 {{ value }}
             </span>
         </div>

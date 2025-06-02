@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StatusBilling;
 use Illuminate\Database\Eloquent\Model;
 
 class Billing extends Model
@@ -9,6 +10,10 @@ class Billing extends Model
     protected $table = 'billing';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'status' => StatusBilling::class,
+    ];
 
     public function student()
     {

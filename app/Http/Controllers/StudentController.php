@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\StatusBilling;
+use App\Models\BankAccount;
 use App\Models\Billing;
 use App\Models\Group;
 use App\Models\Period;
@@ -23,6 +24,7 @@ class StudentController extends Controller
     protected $periods = [];
     protected $groups = [];
     protected $positions = [];
+    protected $bank_accounts = [];
 
     protected $attributes = [
         'name' => 'Nama',
@@ -52,6 +54,7 @@ class StudentController extends Controller
         $this->periods = Period::where('is_active', true)->get();
         $this->groups = Group::where('is_active', true)->get();
         $this->positions = Position::all();
+        $this->bank_accounts = BankAccount::all();
     }
 
     /**
@@ -169,7 +172,7 @@ class StudentController extends Controller
         $student = Student::with(['user'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
         $enrollments = StudentEnrollment::with(['student', 'period', 'group', 'position', 'alternativePosition'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
-        $billings = Billing::with(['student', 'period', 'billingType'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
+        $billings = Billing::with(['student', 'period', 'billingType', 'payments', 'payment'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('student/Show', [
             'student' => $student,
@@ -276,7 +279,7 @@ class StudentController extends Controller
     /**
      * Show the form for creating a new enrollment.
      */
-    public function createEnrollment(string $id)
+    public function enrollmentCreate(string $id)
     {
         $this->checkPermission('student-enrollment-create');
 
@@ -293,7 +296,7 @@ class StudentController extends Controller
     /**
      * Store a newly created enrollment in storage.
      */
-    public function storeEnrollment(Request $request, string $id)
+    public function enrollmentStore(Request $request, string $id)
     {
         $this->checkPermission('student-enrollment-create');
 
@@ -328,6 +331,46 @@ class StudentController extends Controller
             ]);
             DB::commit();
             return redirect()->route('student.show', $student->id)->with('success', 'Team berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    /**
+     * Show the form for creating a new payment.
+     */
+    public function paymentCreate(string $id)
+    {
+        $this->checkPermission('student-payment-create');
+
+        $billing = Billing::with(['student', 'period', 'billingType'])->findOrFail($id);
+
+        return Inertia::render('student/payment/Create', [
+            'billing' => $billing,
+            'bank_accounts' => $this->bank_accounts,
+        ]);
+    }
+
+    /**
+     * Store a newly created payment in storage.
+     */
+    public function paymentStore(Request $request, string $id)
+    {
+        dd($request->all());
+        $this->checkPermission('student-payment-create');
+
+        $billing = Billing::with(['student', 'period', 'billingType'])->findOrFail($id);
+
+        $request->validate([
+            'amount' => ['required', 'numeric'],
+        ], [], $this->attributes);
+
+        try {
+            DB::beginTransaction();
+            //
+            DB::commit();
+            return redirect()->route('student.show', $billing->student_id)->with('success', 'Tagihan berhasil dibayarkan');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;

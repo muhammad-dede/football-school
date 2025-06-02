@@ -146,7 +146,7 @@ const calculateAge = (birthDate) => {
                         class="py-0"
                     >
                         <CardContent class="px-4 grid divide-y divide-gray-100">
-                            <div class="flex justify-between items-center py-4">
+                            <div class="flex justify-between items-center">
                                 <InfoItem
                                     :label="formatTimestamp(item.created_at)"
                                     :icon="CalendarDays"
@@ -219,22 +219,19 @@ const calculateAge = (birthDate) => {
                                     label="Lisensi Kepelatihan"
                                     :value="item.coaching_license ?? '-'"
                                     :icon="CreditCard"
-                                    color="lime"
-                                    withColor
+                                    background
                                 />
                                 <InfoItem
                                     label="Nomor Lisensi"
                                     :value="item.license_number ?? '-'"
                                     :icon="FileDigit"
-                                    color="purple"
-                                    withColor
+                                    background
                                 />
                                 <InfoItem
                                     label="Lembaga Kepelatihan"
                                     :value="item.license_issuer ?? '-'"
                                     :icon="Landmark"
-                                    color="sky"
-                                    withColor
+                                    background
                                 />
                             </div>
                         </CardContent>

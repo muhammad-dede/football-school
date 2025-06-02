@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Phone,
     Calendar,
+    CalendarDays,
     Mail,
     Mars,
     MapPinCheck,
@@ -49,6 +50,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import TabStudent from "./show/TabStudent.vue";
+import TabEnrollment from "./show/TabEnrollment.vue";
+import TabBilling from "./show/TabBilling.vue";
 
 const { can } = usePermissions();
 
@@ -86,10 +91,18 @@ const destroy = () => {
 const hasNoTeam = computed(() => {
     return props.enrollments.length === 0;
 });
-
 const unpaidBilling = computed(() => {
     return props.billings.find((billing) => billing.status === "UNPAID");
 });
+
+const enrollmentHasBilling = (enrollment) => {
+    return props.billings.find(
+        (billing) =>
+            billing.student_id === enrollment.student_id &&
+            billing.period_id === enrollment.period_id &&
+            billing.billing_type_code === "REGISTRATION"
+    );
+};
 </script>
 
 <template>
@@ -188,152 +201,26 @@ const unpaidBilling = computed(() => {
                     <TabsTrigger value="match">Pertandingan</TabsTrigger>
                 </TabsList>
                 <TabsContent value="student">
-                    <div class="flex flex-col lg:flex-row gap-4">
-                        <Card class="h-fit w-full lg:w-[50%] xl:w-[60%] py-3">
-                            <CardContent>
-                                <h5
-                                    class="text-sm font-bold text-gray-500 mb-4"
-                                >
-                                    Informasi Biodata
-                                </h5>
-                                <div class="flex justify-between">
-                                    <template v-if="student.photo_url">
-                                        <img
-                                            :src="student.photo_url"
-                                            alt="Preview"
-                                            class="h-24 w-24 object-cover rounded-lg border cursor-pointer"
-                                            @click="togglePhoto"
-                                        />
-                                    </template>
-                                    <template v-else>
-                                        <div
-                                            class="h-24 w-24 flex items-center justify-center border rounded-lg text-gray-500 text-xs"
-                                        >
-                                            Belum ada gambar
-                                        </div>
-                                    </template>
-                                    <Badge
-                                        :variant="
-                                            student.is_active
-                                                ? 'default'
-                                                : 'destructive'
-                                        "
-                                        class="py-2 px-3 rounded-full h-fit"
-                                    >
-                                        {{
-                                            student.is_active
-                                                ? "Aktif"
-                                                : "Tidak Aktif"
-                                        }}
-                                    </Badge>
-                                </div>
-                                <div class="grid divide-y divide-gray-100">
-                                    <InfoItem
-                                        :label="student.national_id_number"
-                                        :value="student.name"
-                                        :icon="IdCard"
-                                    />
-                                    <InfoItem
-                                        label="Tempat Lahir"
-                                        :value="student.place_of_birth"
-                                        :icon="MapPinCheck"
-                                        color="blue"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Tanggal Lahir"
-                                        :value="
-                                            dateFormat(student.date_of_birth)
-                                        "
-                                        :icon="Calendar"
-                                        color="yellow"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Jenis Kelamin"
-                                        :value="
-                                            student.gender === 'MALE'
-                                                ? 'Laki-laki'
-                                                : 'Perempuan'
-                                        "
-                                        :icon="Mars"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Alamat"
-                                        :value="student.address"
-                                        :icon="MapPinCheck"
-                                        color="red"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Telepon"
-                                        :value="student.phone"
-                                        :icon="Phone"
-                                        color="green"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Email"
-                                        :value="student.user?.email"
-                                        :icon="Mail"
-                                        color="teal"
-                                        withColor
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card class="h-fit w-full lg:w-[50%] xl:w-[40%] py-3">
-                            <CardContent>
-                                <h5
-                                    class="text-sm font-bold text-gray-500 mb-4"
-                                >
-                                    Informasi Fisik
-                                </h5>
-                                <div class="grid divide-y divide-gray-100">
-                                    <InfoItem
-                                        label="Kaki Dominan"
-                                        :value="student.dominant_foot"
-                                        :icon="Footprints"
-                                        color="lime"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Tinggi Badan"
-                                        :value="`${
-                                            student.height_cm ?? '-'
-                                        } Centimeter`"
-                                        :icon="Ruler"
-                                        color="purple"
-                                        withColor
-                                    />
-                                    <InfoItem
-                                        label="Berat Badan"
-                                        :value="`${
-                                            student.weight_kg ?? '-'
-                                        } Kg`"
-                                        :icon="Weight"
-                                        color="rose"
-                                        withColor
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                    <TabStudent
+                        :student="student"
+                        :dateFormat="dateFormat"
+                        :togglePhoto="togglePhoto"
+                    />
                 </TabsContent>
                 <TabsContent value="enrollment">
-                    <Card>
-                        <CardContent class="space-y-2">
-                            <!--  -->
-                        </CardContent>
-                    </Card>
+                    <TabEnrollment
+                        :student="student"
+                        :enrollments="enrollments"
+                        :dateFormat="dateFormat"
+                        :enrollmentHasBilling="enrollmentHasBilling"
+                    />
                 </TabsContent>
                 <TabsContent value="billing">
-                    <Card>
-                        <CardContent class="space-y-2">
-                            <!--  -->
-                        </CardContent>
-                    </Card>
+                    <TabBilling
+                        :student="student"
+                        :billings="billings"
+                        :dateFormat="dateFormat"
+                    />
                 </TabsContent>
                 <TabsContent value="training">
                     <Card>

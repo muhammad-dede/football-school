@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BankAccount;
 use App\Models\BillingType;
 use App\Models\Position;
 use App\Models\Stage;
@@ -162,28 +163,25 @@ class MasterSeeder extends Seeder
 
         $stages = [
             [
-                'code' => 'FISIK',
-                'name' => 'Fisik',
-                'percentage' => 25,
+                'code' => 'TEKNIK',
+                'name' => 'Teknik Dasar',
+                'description' => 'Latihan kontrol bola, dribbling, passing, shooting.',
+                'percentage' => 40,
                 'order' => 1,
             ],
             [
-                'code' => 'TEKNIK',
-                'name' => 'Teknik',
-                'percentage' => 25,
+                'code' => 'STRATEGY',
+                'name' => 'Taktik Tim',
+                'description' => 'Pemahaman formasi, strategi bertahan dan menyerang.',
+                'percentage' => 30,
                 'order' => 2,
             ],
             [
-                'code' => 'PSIKOLOGI',
-                'name' => 'Psikologi',
-                'percentage' => 25,
+                'code' => 'PHYSICAL',
+                'name' => 'Fisik & Mental',
+                'description' => 'Latihan fisik, kecepatan, dan membangun karakter atlet.',
+                'percentage' => 30,
                 'order' => 3,
-            ],
-            [
-                'code' => 'EVALUASI',
-                'name' => 'Evaluasi',
-                'percentage' => 25,
-                'order' => 4,
             ],
         ];
         foreach ($stages as $key => $value) {
@@ -199,6 +197,25 @@ class MasterSeeder extends Seeder
 
         foreach ($billing_types as $key => $value) {
             BillingType::create($value);
+        }
+
+        $bank_accounts = [
+            [
+                'bank_name' => 'Bank Central Asia',
+                'account_number' => '012387654567',
+                'account_holder_name' => 'Riwan Febrianto',
+                'description' => null,
+            ],
+            [
+                'bank_name' => 'Bank Negara Indonesia',
+                'account_number' => '076543217654',
+                'account_holder_name' => 'Riwan Febrianto',
+                'description' => null,
+            ],
+        ];
+
+        foreach ($bank_accounts as $key => $value) {
+            BankAccount::create($value);
         }
     }
 }

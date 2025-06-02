@@ -231,7 +231,7 @@ const submit = () => {
                                 Simpan
                             </Button>
                             <Link
-                                :href="route('student.index')"
+                                :href="route('student.show', student.id)"
                                 :class="buttonVariants({ variant: 'outline' })"
                                 >Kembali</Link
                             >

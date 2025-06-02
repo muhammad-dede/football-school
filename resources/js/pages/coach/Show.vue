@@ -185,15 +185,13 @@ const destroy = () => {
                                         label="Tempat Lahir"
                                         :value="coach.place_of_birth"
                                         :icon="MapPinCheck"
-                                        color="blue"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Tanggal Lahir"
                                         :value="dateFormat(coach.date_of_birth)"
                                         :icon="Calendar"
-                                        color="yellow"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Jenis Kelamin"
@@ -203,28 +201,25 @@ const destroy = () => {
                                                 : 'Perempuan'
                                         "
                                         :icon="Mars"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Alamat"
                                         :value="coach.address"
                                         :icon="MapPinCheck"
-                                        color="red"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Telepon"
                                         :value="coach.phone"
                                         :icon="Phone"
-                                        color="green"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Email"
                                         :value="coach.user?.email"
                                         :icon="Mail"
-                                        color="teal"
-                                        withColor
+                                        background
                                     />
                                 </div>
                             </CardContent>
@@ -241,15 +236,13 @@ const destroy = () => {
                                         label="Lisensi Kepelatihan"
                                         :value="coach.coaching_license ?? '-'"
                                         :icon="CreditCard"
-                                        color="lime"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Nomor Lisensi"
                                         :value="coach.license_number ?? '-'"
                                         :icon="FileDigit"
-                                        color="purple"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Tanggal Terbit"
@@ -259,8 +252,7 @@ const destroy = () => {
                                             ) ?? '-'
                                         "
                                         :icon="Calendar"
-                                        color="stone"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Tanggal Berakhir"
@@ -270,15 +262,13 @@ const destroy = () => {
                                             ) ?? '-'
                                         "
                                         :icon="Calendar"
-                                        color="rose"
-                                        withColor
+                                        background
                                     />
                                     <InfoItem
                                         label="Lembaga Kepelatihan"
                                         :value="coach.license_issuer ?? '-'"
                                         :icon="Landmark"
-                                        color="sky"
-                                        withColor
+                                        background
                                     />
                                 </div>
                             </CardContent>

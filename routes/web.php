@@ -28,9 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('coach/{coach}', [App\Http\Controllers\CoachController::class, 'update'])->name('coach.update');
     Route::resource('coach', App\Http\Controllers\CoachController::class)->except('update');
     // Student
-    Route::get('student/enrollment/create/{student}', [App\Http\Controllers\StudentController::class, 'createEnrollment'])->name('student.enrollment.create');
-    Route::post('student/enrollment/store/{student}', [App\Http\Controllers\StudentController::class, 'storeEnrollment'])->name('student.enrollment.store');
-    Route::get('student/enrollment/edit/{enrollment}', [App\Http\Controllers\StudentController::class, 'editEnrollment'])->name('student.enrollment.edit');
+    Route::get('student/payment/create/{billing}', [App\Http\Controllers\StudentController::class, 'paymentCreate'])->name('student.payment.create');
+    Route::post('student/payment/store/{billing}', [App\Http\Controllers\StudentController::class, 'paymentStore'])->name('student.payment.store');
+    Route::get('student/enrollment/create/{student}', [App\Http\Controllers\StudentController::class, 'enrollmentCreate'])->name('student.enrollment.create');
+    Route::post('student/enrollment/store/{student}', [App\Http\Controllers\StudentController::class, 'EnrollmentStore'])->name('student.enrollment.store');
     Route::post('student/{student}/status', [App\Http\Controllers\StudentController::class, 'status'])->name('student.status');
     Route::post('student/{student}', [App\Http\Controllers\StudentController::class, 'update'])->name('student.update');
     Route::resource('student', App\Http\Controllers\StudentController::class)->except('update');
