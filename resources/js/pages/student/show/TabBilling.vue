@@ -33,10 +33,6 @@ const currency = (number) => {
         maximumFractionDigits: 2,
     }).format(Number(number));
 };
-
-const billingHasPayments = () => {
-    //
-};
 </script>
 
 <template>
@@ -85,8 +81,7 @@ const billingHasPayments = () => {
                     <div class="absolute top-5 right-0">
                         <Link
                             v-if="
-                                can('student-payment-create') &&
-                                !item.payments.length
+                                can('student-payment-create') && !item.payment
                             "
                             :href="route('student.payment.create', item.id)"
                             :class="
@@ -102,7 +97,7 @@ const billingHasPayments = () => {
                 <div class="flex flex-col justify-between gap-x-4 lg:flex-row">
                     <InfoItem
                         label="Sudah Bayar"
-                        :value="currency(item.total_paid)"
+                        :value="currency(item.payment?.amount)"
                         :icon="CircleDollarSign"
                         background
                     />

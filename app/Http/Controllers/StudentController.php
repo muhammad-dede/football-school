@@ -189,14 +189,10 @@ class StudentController extends Controller
             ->where('student_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
-        $billings = Billing::with(['student', 'period', 'billingType', 'payments', 'payment'])
+        $billings = Billing::with(['student', 'period', 'billingType', 'payment'])
             ->where('student_id', $id)
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($billing) {
-                $billing->total_paid = $billing->payments->where('status', StatusPayment::PAID)->sum('amount');
-                return $billing;
-            });
+            ->get();
 
         return Inertia::render('student/Show', [
             'student' => $student,

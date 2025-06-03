@@ -34,9 +34,4 @@ class Billing extends Model
     {
         return $this->hasOne(Payment::class, 'billing_id', 'id');
     }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class, 'billing_id', 'id');
-    }
 }
