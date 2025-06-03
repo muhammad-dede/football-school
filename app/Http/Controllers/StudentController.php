@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\StatusBilling;
+use App\Enums\StatusPayment;
 use App\Models\BankAccount;
 use App\Models\Billing;
 use App\Models\Group;
+use App\Models\Payment;
 use App\Models\Period;
 use App\Models\Position;
 use App\Models\Student;
@@ -15,6 +17,7 @@ use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -47,6 +50,17 @@ class StudentController extends Controller
         'alternative_position_code' => 'Alternatif Posisi',
         'jersey_number' => 'Nomor Punggung',
         'join_date' => 'Tanggal Bergabung',
+        // Payment
+        'amount' => 'Jumlah Pembayaran',
+        'payment_date' => 'Tanggal Pembayaran',
+        'method' => 'Metode Pembayaran',
+        'receiver_id' => 'Bank Tujuan',
+        'sender_bank_name' => 'Nama Bank Pengirim',
+        'sender_account_number' => 'No Rekening Pengirim',
+        'sender_account_holder_name' => 'Atas Nama Pengirim',
+        'proof_file' => 'Bukti Transfer',
+        'reference_number' => 'No Referensi',
+        'notes' => 'Catatan',
     ];
 
     public function __construct()
@@ -169,10 +183,20 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-show');
 
-        $student = Student::with(['user'])->findOrFail($id);
+        $student = Student::with(['user', 'enrollment'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
-        $enrollments = StudentEnrollment::with(['student', 'period', 'group', 'position', 'alternativePosition'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
-        $billings = Billing::with(['student', 'period', 'billingType', 'payments', 'payment'])->where('student_id', $id)->orderBy('created_at', 'desc')->get();
+        $enrollments = StudentEnrollment::with(['student', 'period', 'group', 'position', 'alternativePosition'])
+            ->where('student_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $billings = Billing::with(['student', 'period', 'billingType', 'payments', 'payment'])
+            ->where('student_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($billing) {
+                $billing->total_paid = $billing->payments->where('status', StatusPayment::PAID)->sum('amount');
+                return $billing;
+            });
 
         return Inertia::render('student/Show', [
             'student' => $student,
@@ -279,11 +303,11 @@ class StudentController extends Controller
     /**
      * Show the form for creating a new enrollment.
      */
-    public function enrollmentCreate(string $id)
+    public function enrollmentCreate(string $student_id)
     {
         $this->checkPermission('student-enrollment-create');
 
-        $student = Student::findOrFail($id);
+        $student = Student::findOrFail($student_id);
 
         return Inertia::render('student/enrollment/Create', [
             'periods' => $this->periods,
@@ -296,17 +320,17 @@ class StudentController extends Controller
     /**
      * Store a newly created enrollment in storage.
      */
-    public function enrollmentStore(Request $request, string $id)
+    public function enrollmentStore(Request $request, string $student_id)
     {
         $this->checkPermission('student-enrollment-create');
 
-        $student = Student::findOrFail($id);
+        $student = Student::findOrFail($student_id);
 
         $request->validate([
-            'period_id' => ['required', 'string', 'exists:period,id'],
-            'group_code' => ['required', 'string', 'exists:group,code'],
-            'position_code' => ['required', 'string', 'exists:position,code'],
-            'alternative_position_code' => ['required', 'string', 'exists:position,code'],
+            'period_id' => ['required', 'exists:period,id'],
+            'group_code' => ['required', 'exists:group,code'],
+            'position_code' => ['required', 'exists:position,code'],
+            'alternative_position_code' => ['required', 'exists:position,code'],
             'jersey_number' => ['required', 'numeric', 'min:1', 'max:100'],
             'join_date' => ['required', 'date'],
         ], [], $this->attributes);
@@ -330,7 +354,101 @@ class StudentController extends Controller
                 'status' => StatusBilling::UNPAID,
             ]);
             DB::commit();
-            return redirect()->route('student.show', $student->id)->with('success', 'Team berhasil ditambahkan');
+            return redirect()->route('student.show', $student->id)->with([
+                'success' => 'Team berhasil ditambahkan',
+                'page' => 'enrollment',
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+    /**
+     * Show the form for updating a enrollment.
+     */
+    public function enrollmentEdit(string $enrollment_id)
+    {
+        $this->checkPermission('student-enrollment-edit');
+
+        $enrollment = StudentEnrollment::with(['student'])->findOrFail($enrollment_id);
+
+        return Inertia::render('student/enrollment/Edit', [
+            'periods' => $this->periods,
+            'groups' => $this->groups,
+            'positions' => $this->positions,
+            'enrollment' => $enrollment,
+        ]);
+    }
+
+    /**
+     * Update a updated enrollment in storage.
+     */
+    public function enrollmentUpdate(Request $request, string $enrollment_id)
+    {
+        $this->checkPermission('student-enrollment-edit');
+
+        $enrollment = StudentEnrollment::findOrFail($enrollment_id);
+
+        $request->validate([
+            'period_id' => ['required', 'exists:period,id'],
+            'group_code' => ['required', 'exists:group,code'],
+            'position_code' => ['required', 'exists:position,code'],
+            'alternative_position_code' => ['required', 'exists:position,code'],
+            'jersey_number' => ['required', 'numeric', 'min:1', 'max:100'],
+            'join_date' => ['required', 'date'],
+        ], [], $this->attributes);
+
+        try {
+            DB::beginTransaction();
+            Billing::where('period_id', $enrollment->period_id)->where('student_id', $enrollment->student_id)->where('billing_type_code', 'REGISTRATION')->update([
+                'period_id' => $request->period_id,
+            ]);
+            $enrollment->update([
+                'period_id' => $request->period_id,
+                'group_code' => $request->group_code,
+                'position_code' => $request->position_code,
+                'alternative_position_code' => $request->alternative_position_code,
+                'jersey_number' => $request->jersey_number,
+                'join_date' => $request->join_date,
+            ]);
+            DB::commit();
+            return redirect()->route('student.show', $enrollment->student_id)->with([
+                'success' => 'Team berhasil diubah',
+                'page' => 'enrollment',
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function enrollmentDestroy(string $enrollment_id)
+    {
+        $this->checkPermission('student-enrollment-delete');
+
+        try {
+            $enrollment = StudentEnrollment::findOrFail($enrollment_id);
+            $billing = Billing::where('student_id', $enrollment->student_id)
+                ->where('period_id', $enrollment->period_id)
+                ->where('billing_type_code', 'REGISTRATION')
+                ->first();
+            if ($billing->status === StatusBilling::PAID) {
+                return redirect()->route('student.show', $enrollment->student_id)->with([
+                    'failed' => 'Tidak dapat menghapus, team memiliki tagihan yang sudah dibayar.',
+                    'page' => 'enrollment',
+                ]);
+            }
+            DB::beginTransaction();
+            $enrollment->delete();
+            $billing->delete();
+            DB::commit();
+            return redirect()->route('student.show', $enrollment->student_id)->with([
+                'success' => 'Team berhasil dihapus',
+                'page' => 'enrollment',
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -340,11 +458,11 @@ class StudentController extends Controller
     /**
      * Show the form for creating a new payment.
      */
-    public function paymentCreate(string $id)
+    public function paymentCreate(string $billing_id)
     {
         $this->checkPermission('student-payment-create');
 
-        $billing = Billing::with(['student', 'period', 'billingType'])->findOrFail($id);
+        $billing = Billing::with(['student', 'period', 'billingType'])->findOrFail($billing_id);
 
         return Inertia::render('student/payment/Create', [
             'billing' => $billing,
@@ -355,22 +473,64 @@ class StudentController extends Controller
     /**
      * Store a newly created payment in storage.
      */
-    public function paymentStore(Request $request, string $id)
+    public function paymentStore(Request $request, string $billing_id)
     {
-        dd($request->all());
         $this->checkPermission('student-payment-create');
 
-        $billing = Billing::with(['student', 'period', 'billingType'])->findOrFail($id);
+        $billing = Billing::with(['student', 'period', 'billingType'])->findOrFail($billing_id);
 
         $request->validate([
             'amount' => ['required', 'numeric'],
+            'payment_date' => ['required', 'date'],
+            'method' => ['required', 'string', 'in:CASH,TRANSFER'],
+            'receiver_id' => [Rule::requiredIf($request->method === 'TRANSFER'), 'nullable', 'exists:bank_account,id'],
+            'sender_bank_name' => [Rule::requiredIf($request->method === 'TRANSFER'), 'nullable', 'string', 'max:255'],
+            'sender_account_number' => [Rule::requiredIf($request->method === 'TRANSFER'), 'nullable', 'string', 'max:255'],
+            'sender_account_holder_name' => [Rule::requiredIf($request->method === 'TRANSFER'), 'nullable', 'string', 'max:255'],
+            'proof_file' => [Rule::requiredIf($request->method === 'TRANSFER'), 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'reference_number' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
         ], [], $this->attributes);
 
         try {
             DB::beginTransaction();
-            //
+            $payment = Payment::create([
+                'billing_id' => $billing->id,
+                'amount' => $billing->amount,
+                'payment_date' => $request->payment_date,
+                'method' => $request->method,
+                'notes' => $request->notes,
+                'status' => StatusPayment::PAID,
+            ]);
+            if ($request->method === 'TRANSFER') {
+                $bank_account = BankAccount::findOrFail($request->receiver_id);
+                $payment->update([
+                    'receiver_bank_name' => $bank_account->bank_name,
+                    'receiver_account_number' => $bank_account->account_number,
+                    'receiver_account_holder_name' => $bank_account->account_holder_name,
+                    'sender_bank_name' => $request->sender_bank_name,
+                    'sender_account_number' => $request->sender_account_number,
+                    'sender_account_holder_name' => $request->sender_account_holder_name,
+                    'reference_number' => $request->reference_number,
+                ]);
+                if ($request->hasFile('proof_file')) {
+                    $path = Storage::disk('public')->put('payment', $request->proof_file);
+                    $payment->update([
+                        'proof_file' => $path,
+                    ]);
+                }
+            }
+            $billing->update([
+                'status' => StatusBilling::PAID,
+            ]);
+            StudentEnrollment::where('student_id', $billing->student_id)->where('period_id', $billing->period_id)->update([
+                'is_active' => true,
+            ]);
             DB::commit();
-            return redirect()->route('student.show', $billing->student_id)->with('success', 'Tagihan berhasil dibayarkan');
+            return redirect()->route('student.show', $billing->student_id)->with([
+                'success' => 'Tagihan berhasil dibayarkan',
+                'page' => 'billing',
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;

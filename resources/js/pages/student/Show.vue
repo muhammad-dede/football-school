@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from "@/layouts/AppLayout.vue";
-import { Head, Link, router } from "@inertiajs/vue3";
+import { Head, Link, router, usePage } from "@inertiajs/vue3";
 import MainContent from "@/components/MainContent.vue";
 import { Card, CardContent } from "@/components/ui/card/index";
 import { Button, buttonVariants } from "@/components/ui/button/index";
@@ -56,6 +56,9 @@ import TabEnrollment from "./show/TabEnrollment.vue";
 import TabBilling from "./show/TabBilling.vue";
 
 const { can } = usePermissions();
+
+const page = usePage();
+const flash = page.props.flash;
 
 const props = defineProps({
     student: Object,
@@ -192,7 +195,7 @@ const enrollmentHasBilling = (enrollment) => {
                     Bayar
                 </Link>
             </Alert>
-            <Tabs default-value="student" class="w-full">
+            <Tabs :default-value="flash.page ?? 'student'" class="w-full">
                 <TabsList class="grid w-full grid-cols-5">
                     <TabsTrigger value="student">Biodata</TabsTrigger>
                     <TabsTrigger value="enrollment">Team</TabsTrigger>
@@ -212,7 +215,6 @@ const enrollmentHasBilling = (enrollment) => {
                         :student="student"
                         :enrollments="enrollments"
                         :dateFormat="dateFormat"
-                        :enrollmentHasBilling="enrollmentHasBilling"
                     />
                 </TabsContent>
                 <TabsContent value="billing">

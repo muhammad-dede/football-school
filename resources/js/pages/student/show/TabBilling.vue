@@ -12,7 +12,11 @@ import {
     Locate,
     Shirt,
     CircleDollarSign,
+    Dock,
 } from "lucide-vue-next";
+import usePermissions from "@/composables/usePermissions";
+
+const { can } = usePermissions();
 
 const props = defineProps({
     student: Object,
@@ -73,16 +77,17 @@ const billingHasPayments = () => {
                         />
                         <InfoItem
                             reverse
-                            label="Jumlah"
+                            label="Total Pembayaran"
                             :value="currency(item.amount)"
                             :icon="CircleDollarSign"
                         />
                     </div>
-                    <div
-                        v-if="!item.payments.length"
-                        class="absolute top-5 right-0"
-                    >
+                    <div class="absolute top-5 right-0">
                         <Link
+                            v-if="
+                                can('student-payment-create') &&
+                                !item.payments.length
+                            "
                             :href="route('student.payment.create', item.id)"
                             :class="
                                 buttonVariants({
@@ -93,6 +98,26 @@ const billingHasPayments = () => {
                             Bayar
                         </Link>
                     </div>
+                </div>
+                <div class="flex flex-col justify-between gap-x-4 lg:flex-row">
+                    <InfoItem
+                        label="Sudah Bayar"
+                        :value="currency(item.total_paid)"
+                        :icon="CircleDollarSign"
+                        background
+                    />
+                    <InfoItem
+                        label="Tanggal Bayar"
+                        :value="dateFormat(item.payment?.payment_date) ?? '-'"
+                        :icon="CalendarDays"
+                        background
+                    />
+                    <InfoItem
+                        label="Metode Pembayaran"
+                        :value="item.payment?.method ?? '-'"
+                        :icon="Dock"
+                        background
+                    />
                 </div>
             </CardContent>
         </Card>

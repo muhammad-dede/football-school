@@ -31,12 +31,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
 import InfoItem from "@/components/InfoItem.vue";
 
 const props = defineProps({
@@ -194,43 +188,34 @@ const submit = () => {
                                             :message="form.errors.payment_date"
                                         />
                                     </div>
-                                    <Accordion
-                                        type="single"
-                                        collapsible
-                                        default-value="item-1"
+                                    <div
+                                        class="w-full flex flex-col gap-2 py-4"
                                     >
-                                        <AccordionItem value="item-1">
-                                            <AccordionTrigger>
-                                                Pilih Metode Pembayaran
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                <RadioGroup
-                                                    :orientation="'vertical'"
-                                                    v-model="form.method"
-                                                >
-                                                    <div
-                                                        class="flex items-center space-x-2"
-                                                        v-for="(
-                                                            method, index
-                                                        ) in paymentMethods"
-                                                        :key="index"
-                                                    >
-                                                        <RadioGroupItem
-                                                            :id="`method-${index}`"
-                                                            :value="
-                                                                method.value
-                                                            "
-                                                        />
-                                                        <Label
-                                                            :for="`method-${index}`"
-                                                        >
-                                                            {{ method.label }}
-                                                        </Label>
-                                                    </div>
-                                                </RadioGroup>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
+                                        <LabelSpan label="Metode Pembayaran" />
+                                        <RadioGroup
+                                            :orientation="'vertical'"
+                                            v-model="form.method"
+                                        >
+                                            <div
+                                                class="flex items-center space-x-2"
+                                                v-for="(
+                                                    method, index
+                                                ) in paymentMethods"
+                                                :key="index"
+                                            >
+                                                <RadioGroupItem
+                                                    :id="`method-${index}`"
+                                                    :value="method.value"
+                                                />
+                                                <Label :for="`method-${index}`">
+                                                    {{ method.label }}
+                                                </Label>
+                                            </div>
+                                        </RadioGroup>
+                                        <InputError
+                                            :message="form.errors.method"
+                                        />
+                                    </div>
                                     <template v-if="form.method === 'TRANSFER'">
                                         <div
                                             class="w-full flex flex-col gap-2 py-4"
@@ -327,13 +312,13 @@ const submit = () => {
                                         >
                                             <Label
                                                 for="sender_account_holder_name"
-                                                >Nama Pengirim</Label
+                                                >Atas Nama Pengirim</Label
                                             >
                                             <Input
                                                 id="sender_account_holder_name"
                                                 type="text"
                                                 name="sender_account_holder_name"
-                                                placeholder="Input Nama Pengirim"
+                                                placeholder="Input Atas Nama Pengirim"
                                                 autocomplete="off"
                                                 v-model="
                                                     form.sender_account_holder_name

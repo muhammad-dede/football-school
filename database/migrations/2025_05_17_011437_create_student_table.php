@@ -82,6 +82,7 @@ return new class extends Migration
             $table->string('reference_number')->nullable();
             // Catatan Pembayaran
             $table->text('notes')->nullable();
+            $table->string('status')->default('PAID');
             $table->timestamps();
 
             $table->foreign('billing_id')->references('id')->on('billing')->onDelete('cascade');

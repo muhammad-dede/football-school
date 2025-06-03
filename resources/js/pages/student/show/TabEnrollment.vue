@@ -1,16 +1,36 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
+import { ref } from "vue";
 import { Card, CardContent } from "@/components/ui/card";
 import InfoItem from "@/components/InfoItem.vue";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button/index";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
     CalendarDays,
     Group,
     LocateFixed,
     Locate,
     Shirt,
+    MoreHorizontal,
 } from "lucide-vue-next";
 import usePermissions from "@/composables/usePermissions";
 
@@ -20,8 +40,22 @@ const props = defineProps({
     student: Object,
     enrollments: Object,
     dateFormat: Function,
-    enrollmentHasBilling: Function,
 });
+
+const enrollmentToDelete = ref(null);
+const confirmDelete = (enrollment) => {
+    enrollmentToDelete.value = enrollment;
+};
+const destroy = () => {
+    if (!enrollmentToDelete.value) return;
+    const enrollmentId = enrollmentToDelete.value.id;
+    router.delete(route("student.enrollment.destroy", enrollmentId), {
+        preserveScroll: true,
+        onFinish: () => {
+            enrollmentToDelete.value = null;
+        },
+    });
+};
 </script>
 
 <template>
@@ -67,17 +101,39 @@ const props = defineProps({
                             :icon="CalendarDays"
                         />
                     </div>
-                    <div class="absolute top-5 right-0">
-                        <Link
-                            href="#"
-                            :class="
-                                buttonVariants({
-                                    variant: 'secondary',
-                                })
-                            "
-                        >
-                            {{ enrollmentHasBilling(item)?.status }}
-                        </Link>
+                    <div class="absolute top-5.5 right-0">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <Button variant="outline" class="w-8 h-8 p-0">
+                                    <MoreHorizontal class="w-4 h-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel> Aksi </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    asChild
+                                    v-if="can('student-enrollment-edit')"
+                                >
+                                    <Link
+                                        :href="
+                                            route(
+                                                'student.enrollment.edit',
+                                                item.id
+                                            )
+                                        "
+                                    >
+                                        Ubah
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    v-if="can('student-enrollment-delete')"
+                                    @select="() => confirmDelete(item)"
+                                >
+                                    Hapus
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
                 <div class="flex flex-col justify-between gap-x-4 lg:flex-row">
@@ -118,4 +174,23 @@ const props = defineProps({
             </div>
         </div>
     </template>
+    <AlertDialog :open="!!enrollmentToDelete">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>
+                    Apakah Anda benar-benar yakin?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                    Tindakan ini tidak dapat dibatalkan. Ini akan secara
+                    permanen menghapus data terkait dari server kami.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel @click="enrollmentToDelete = null">
+                    Batal
+                </AlertDialogCancel>
+                <AlertDialogAction @click="destroy">Hapus</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>
