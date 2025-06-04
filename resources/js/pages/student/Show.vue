@@ -6,33 +6,17 @@ import { Card, CardContent } from "@/components/ui/card/index";
 import { Button, buttonVariants } from "@/components/ui/button/index";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    Phone,
-    Calendar,
-    CalendarDays,
-    Mail,
-    Mars,
-    MapPinCheck,
-    IdCard,
-    CreditCard,
-    FileDigit,
-    Landmark,
     MoreHorizontal,
     Trash2,
     Pencil,
-    CirclePower,
     Undo2,
-    Footprints,
-    Ruler,
-    Weight,
     AlertCircle,
 } from "lucide-vue-next";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
-import InfoItem from "@/components/InfoItem.vue";
 import { computed, ref } from "vue";
 import usePermissions from "@/composables/usePermissions";
 import Lightbox from "@/components/Lightbox.vue";
-import { Badge } from "@/components/ui/badge/index";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -50,10 +34,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import TabStudent from "./show/TabStudent.vue";
 import TabEnrollment from "./show/TabEnrollment.vue";
 import TabBilling from "./show/TabBilling.vue";
+import TabTraining from "./show/TabTraining.vue";
 
 const { can } = usePermissions();
 
@@ -64,6 +48,8 @@ const props = defineProps({
     student: Object,
     enrollments: Object,
     billings: Object,
+    trainings: Object,
+    attendances: Object,
 });
 
 const breadcrumbs = [
@@ -216,11 +202,12 @@ const unpaidBilling = computed(() => {
                     />
                 </TabsContent>
                 <TabsContent value="training">
-                    <Card>
-                        <CardContent class="space-y-2">
-                            <!--  -->
-                        </CardContent>
-                    </Card>
+                    <TabTraining
+                        :student="student"
+                        :trainings="trainings"
+                        :attendances="attendances"
+                        :dateFormat="dateFormat"
+                    />
                 </TabsContent>
                 <TabsContent value="match">
                     <Card>

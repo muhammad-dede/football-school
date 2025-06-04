@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Attendance;
 use App\Enums\StatusBilling;
 use App\Enums\StatusPayment;
 use App\Models\BankAccount;
@@ -12,6 +13,7 @@ use App\Models\Period;
 use App\Models\Position;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\Training;
 use App\Models\User;
 use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
@@ -28,6 +30,7 @@ class StudentController extends Controller
     protected $groups = [];
     protected $positions = [];
     protected $bank_accounts = [];
+    protected $attendances = [];
 
     protected $attributes = [
         'name' => 'Nama',
@@ -69,6 +72,7 @@ class StudentController extends Controller
         $this->groups = Group::where('is_active', true)->get();
         $this->positions = Position::all();
         $this->bank_accounts = BankAccount::all();
+        $this->attendances = Attendance::options();
     }
 
     /**
@@ -183,7 +187,7 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-show');
 
-        $student = Student::with(['user', 'enrollment'])->findOrFail($id);
+        $student = Student::with(['user', 'enrollment', 'enrollments'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
         $enrollments = StudentEnrollment::with(['student', 'period', 'group', 'position', 'alternativePosition'])
             ->where('student_id', $id)
@@ -194,10 +198,19 @@ class StudentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $groupCodes = $student->enrollments->pluck('group_code')->unique()->toArray();
+        $periodIds  = $student->enrollments->pluck('period_id')->unique()->toArray();
+        $trainings = Training::with(['group', 'period', 'coach', 'attendances'])
+            ->whereIn('group_code', $groupCodes)
+            ->whereIn('period_id', $periodIds)
+            ->get();
+
         return Inertia::render('student/Show', [
             'student' => $student,
             'enrollments' => $enrollments,
             'billings' => $billings,
+            'trainings' => $trainings,
+            'attendances' => $this->attendances,
         ]);
     }
 
