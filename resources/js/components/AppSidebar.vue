@@ -13,7 +13,6 @@ import {
 import { Link } from "@inertiajs/vue3";
 import {
     BookOpen,
-    Folder,
     LayoutGrid,
     ShieldCheck,
     User,
@@ -87,6 +86,15 @@ const dataNavItems = [
         permission: "billing-index",
     },
 ];
+
+const activityNavItems = [
+    {
+        title: "Pelatihan",
+        href: "/training",
+        icon: BookOpen,
+        permission: "training-index",
+    },
+];
 </script>
 
 <template>
@@ -116,9 +124,14 @@ const dataNavItems = [
                 :items="masterNavItems"
             />
             <NavMain
-                v-if="canAny('coach-index', 'student-index')"
+                v-if="canAny('coach-index', 'student-index', 'billing-index')"
                 group-label="Data"
                 :items="dataNavItems"
+            />
+            <NavMain
+                v-if="canAny('coach-index')"
+                group-label="Aktifitas"
+                :items="activityNavItems"
             />
         </SidebarContent>
 

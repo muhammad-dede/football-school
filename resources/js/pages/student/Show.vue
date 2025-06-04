@@ -121,7 +121,7 @@ const unpaidBilling = computed(() => {
                                 Kembali
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem v-if="can('student-show')" asChild>
+                        <DropdownMenuItem v-if="can('student-edit')" asChild>
                             <Link :href="route('student.edit', student.id)">
                                 <Pencil class="text-green-500" />
                                 Ubah Data

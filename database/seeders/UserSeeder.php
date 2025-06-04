@@ -73,6 +73,14 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'student-payment-create'],
             // Billing
             ['guard_name' => 'web', 'name' => 'billing-index'],
+            ['guard_name' => 'web', 'name' => 'billing-payment-create'],
+            // Training
+            ['guard_name' => 'web', 'name' => 'training-index'],
+            ['guard_name' => 'web', 'name' => 'training-create'],
+            ['guard_name' => 'web', 'name' => 'training-edit'],
+            ['guard_name' => 'web', 'name' => 'training-delete'],
+            ['guard_name' => 'web', 'name' => 'training-show'],
+            ['guard_name' => 'web', 'name' => 'training-attendance'],
         ];
 
         foreach ($permissions as $key => $value) {
@@ -137,6 +145,14 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('student-payment-create');
                 // Billing
                 $role->givePermissionTo('billing-index');
+                $role->givePermissionTo('billing-payment-create');
+                // Training
+                $role->givePermissionTo('training-index');
+                $role->givePermissionTo('training-create');
+                $role->givePermissionTo('training-edit');
+                $role->givePermissionTo('training-delete');
+                $role->givePermissionTo('training-show');
+                $role->givePermissionTo('training-attendance');
             }
             if ($role->name === 'Leader') {
                 // Dashboard

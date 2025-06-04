@@ -114,7 +114,7 @@ const destroy = () => {
                             <CirclePower class="text-blue-500" />
                             Ubah Status
                         </DropdownMenuItem>
-                        <DropdownMenuItem v-if="can('coach-show')" asChild>
+                        <DropdownMenuItem v-if="can('coach-edit')" asChild>
                             <Link :href="route('coach.edit', coach.id)">
                                 <Pencil class="text-green-500" />
                                 Ubah Data

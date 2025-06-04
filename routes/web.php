@@ -46,6 +46,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('billing/payment/create/{billing}', 'paymentCreate')->name('billing.payment.create');
         Route::post('billing/payment/store/{billing}', 'paymentStore')->name('billing.payment.store');
     });
+    // Training
+    Route::post('training/attendance/{training}', [App\Http\Controllers\TrainingController::class, 'attendance'])->name('training.attendance');
+    Route::resource('training', App\Http\Controllers\TrainingController::class);
 });
 
 require __DIR__ . '/auth.php';
