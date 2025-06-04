@@ -40,6 +40,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('student/{student}/status', [App\Http\Controllers\StudentController::class, 'status'])->name('student.status');
     Route::post('student/{student}', [App\Http\Controllers\StudentController::class, 'update'])->name('student.update');
     Route::resource('student', App\Http\Controllers\StudentController::class)->except('update');
+    // Billing
+    Route::controller(App\Http\Controllers\BillingController::class)->group(function () {
+        Route::get('billing', 'index')->name('billing.index');
+        Route::get('billing/payment/create/{billing}', 'paymentCreate')->name('billing.payment.create');
+        Route::post('billing/payment/store/{billing}', 'paymentStore')->name('billing.payment.store');
+    });
 });
 
 require __DIR__ . '/auth.php';

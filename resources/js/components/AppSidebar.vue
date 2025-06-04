@@ -21,6 +21,7 @@ import {
     CalendarRange,
     Group,
     FileUser,
+    Receipt,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 import usePermissions from "@/composables/usePermissions";
@@ -78,6 +79,12 @@ const dataNavItems = [
         href: "/student",
         icon: FileUser,
         permission: "student-index",
+    },
+    {
+        title: "Tagihan",
+        href: "/billing",
+        icon: Receipt,
+        permission: "billing-index",
     },
 ];
 </script>

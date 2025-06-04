@@ -7,36 +7,30 @@ import AppLayout from "@/layouts/AppLayout.vue";
 import MainContent from "@/components/MainContent.vue";
 import PaginationLinks from "@/components/PaginationLinks.vue";
 import { Card, CardContent } from "@/components/ui/card/index";
-import { Button, buttonVariants } from "@/components/ui/button/index";
+import { buttonVariants } from "@/components/ui/button/index";
 import {
-    SquarePlus,
-    Phone,
     CalendarDays,
     IdCard,
-    Timer,
     CreditCard,
-    FileDigit,
-    Landmark,
-    Ruler,
-    Weight,
+    Receipt,
+    CircleDollarSign,
+    Dock,
 } from "lucide-vue-next";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge/index";
 
 import SearchInput from "@/components/SearchInput.vue";
 import FilterControl from "@/components/FilterControl.vue";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
-import { useInitials } from "@/composables/useInitials";
 import usePermissions from "@/composables/usePermissions";
 import InfoItem from "@/components/InfoItem.vue";
 
-const { getInitials } = useInitials();
 const { can } = usePermissions();
 
 const props = defineProps({
-    students: Object,
+    billings: Object,
     search_term: String,
     per_page_term: String,
     filter_term: String,
@@ -44,7 +38,7 @@ const props = defineProps({
 
 const breadcrumbs = [
     { title: "Dashboard", href: "/dashboard" },
-    { title: "Siswa", href: "/student" },
+    { title: "Tagihan", href: "/billing" },
 ];
 
 const search = ref(props.search_term);
@@ -53,7 +47,7 @@ const filter = ref(props.filter_term);
 
 const dataControl = () => {
     router.get(
-        route("student.index"),
+        route("billing.index"),
         {
             search: search.value,
             per_page: perPage.value,
@@ -97,49 +91,32 @@ const formatTimestamp = (timestamp) => {
     return `${datePart}, ${timePart}`;
 };
 
-const calculateAge = (birthDate) => {
-    if (!birthDate) return "-";
-
-    const today = new Date();
-    const birth = new Date(birthDate);
-
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-        age--;
-    }
-
-    return age;
+const currency = (number) => {
+    if (isNaN(number)) return "Rp0";
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(Number(number));
 };
 
-const setLabelFoot = (foot) => {
-    if (foot === "RIGHT") {
-        return "Kanan";
-    } else if (foot === "LEFT") {
-        return "Kiri";
-    } else if (foot === "BOTH") {
-        return "Keduanya";
-    }
+const dateFormat = (date) => {
+    if (!date) return "-";
+    const options = { day: "numeric", month: "long", year: "numeric" };
+    return new Date(date).toLocaleDateString("id-ID", options);
 };
 </script>
 
 <template>
-    <Head title="Siswa" />
+    <Head title="Tagihan" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
                 <Heading
-                    title="Data Siswa"
-                    description="Lihat dan kelola data siswa yang tersedia"
+                    title="Data Tagihan"
+                    description="Lihat dan kelola data tagihan yang tersedia"
                 />
-                <Link
-                    v-if="can('student-create')"
-                    :href="route('student.create')"
-                    :class="buttonVariants({ variant: 'default' })"
-                >
-                    <SquarePlus class="w-4 h-4" />Tambah
-                </Link>
             </HeadingGroup>
             <div class="flex justify-between items-center gap-4 mb-4">
                 <SearchInput v-model="search" />
@@ -151,9 +128,9 @@ const setLabelFoot = (foot) => {
                 />
             </div>
             <div class="flex flex-col gap-4 mb-2">
-                <template v-if="students.data.length > 0">
+                <template v-if="billings.data.length > 0">
                     <Card
-                        v-for="item in students.data"
+                        v-for="(item, index) in billings.data"
                         :key="item.id"
                         class="py-0"
                     >
@@ -165,28 +142,20 @@ const setLabelFoot = (foot) => {
                                 />
                                 <Badge
                                     :variant="
-                                        item.enrollment?.is_active
+                                        item.status === 'PAID'
                                             ? 'default'
                                             : 'destructive'
                                     "
                                     class="px-3 py-2 rounded-full h-fit"
                                 >
-                                    {{
-                                        item.enrollment?.is_active
-                                            ? "Aktif"
-                                            : "Tidak Aktif"
-                                    }}
+                                    {{ item.status }}
                                 </Badge>
                             </div>
                             <div class="flex relative overflow-hidden">
-                                <div class="absolute top-2.5 left-0">
-                                    <Avatar class="size-14 border">
-                                        <AvatarImage
-                                            :src="item.photo_url"
-                                            alt="photo"
-                                        />
+                                <div class="absolute top-3.5 left-0">
+                                    <Avatar class="size-12 border">
                                         <AvatarFallback>
-                                            {{ getInitials(item.name) }}
+                                            {{ billings.from + index }}
                                         </AvatarFallback>
                                     </Avatar>
                                 </div>
@@ -194,35 +163,42 @@ const setLabelFoot = (foot) => {
                                     class="pl-18 w-[85%] flex flex-col justify-between lg:flex-row lg:items-center lg:gap-4"
                                 >
                                     <InfoItem
-                                        :label="item.national_id_number"
-                                        :value="item.name"
+                                        :label="item.period?.name"
+                                        :value="item.student?.name"
                                         :icon="IdCard"
                                     />
                                     <InfoItem
                                         reverse
-                                        label="Telepon"
-                                        :value="item.phone"
-                                        :icon="Phone"
+                                        label="Pembayaran"
+                                        :value="item.billing_type?.name"
+                                        :icon="Receipt"
                                     />
                                     <InfoItem
                                         reverse
-                                        label="Usia"
-                                        :value="`${calculateAge(
-                                            item.date_of_birth
-                                        )} Tahun`"
-                                        :icon="Timer"
+                                        label="Total Pembayaran"
+                                        :value="currency(item.amount)"
+                                        :icon="CircleDollarSign"
                                     />
                                 </div>
                                 <div class="absolute top-5 right-0">
                                     <Link
-                                        :href="route('student.show', item.id)"
+                                        v-if="
+                                            can('billing-payment-create') &&
+                                            item.status === 'UNPAID'
+                                        "
+                                        :href="
+                                            route(
+                                                'billing.payment.create',
+                                                item.id
+                                            )
+                                        "
                                         :class="
                                             buttonVariants({
                                                 variant: 'secondary',
                                             })
                                         "
                                     >
-                                        Kelola
+                                        Bayar
                                     </Link>
                                 </div>
                             </div>
@@ -230,23 +206,27 @@ const setLabelFoot = (foot) => {
                                 class="flex flex-col justify-between gap-x-4 lg:flex-row"
                             >
                                 <InfoItem
-                                    label="Kaki Dominan"
-                                    :value="setLabelFoot(item.dominant_foot)"
+                                    label="Sudah Bayar"
+                                    :value="
+                                        currency(item.payment?.amount) ?? '-'
+                                    "
                                     :icon="CreditCard"
                                     background
                                 />
                                 <InfoItem
-                                    label="Tinggi Badan"
-                                    :value="`${
-                                        item.height_cm ?? '-'
-                                    } Centimeter`"
-                                    :icon="Ruler"
+                                    label="Tanggal Bayar"
+                                    :value="
+                                        dateFormat(
+                                            item.payment?.payment_date
+                                        ) ?? '-'
+                                    "
+                                    :icon="CalendarDays"
                                     background
                                 />
                                 <InfoItem
-                                    label="Berat Badan"
-                                    :value="`${item.weight_kg ?? '-'} Kilogram`"
-                                    :icon="Weight"
+                                    label="Metode Pembayaran"
+                                    :value="item.payment?.method ?? '-'"
+                                    :icon="Dock"
                                     background
                                 />
                             </div>
@@ -258,18 +238,10 @@ const setLabelFoot = (foot) => {
                         <span class="text-base font-semibold">
                             Tidak ada data ditemukan
                         </span>
-                        <div v-if="can('student-create')">
-                            <Link
-                                :href="route('student.create')"
-                                :class="buttonVariants({ variant: 'default' })"
-                                ><SquarePlus class="w-4 h-4" />Tambah
-                                Siswa</Link
-                            >
-                        </div>
                     </div>
                 </template>
             </div>
-            <PaginationLinks :paginator="students" />
+            <PaginationLinks :paginator="billings" />
         </MainContent>
     </AppLayout>
 </template>

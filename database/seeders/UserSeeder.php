@@ -71,6 +71,8 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'student-enrollment-edit'],
             ['guard_name' => 'web', 'name' => 'student-enrollment-delete'],
             ['guard_name' => 'web', 'name' => 'student-payment-create'],
+            // Billing
+            ['guard_name' => 'web', 'name' => 'billing-index'],
         ];
 
         foreach ($permissions as $key => $value) {
@@ -133,6 +135,8 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('student-enrollment-edit');
                 $role->givePermissionTo('student-enrollment-delete');
                 $role->givePermissionTo('student-payment-create');
+                // Billing
+                $role->givePermissionTo('billing-index');
             }
             if ($role->name === 'Leader') {
                 // Dashboard

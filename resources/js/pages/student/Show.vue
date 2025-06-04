@@ -97,15 +97,6 @@ const hasNoTeam = computed(() => {
 const unpaidBilling = computed(() => {
     return props.billings.find((billing) => billing.status === "UNPAID");
 });
-
-const enrollmentHasBilling = (enrollment) => {
-    return props.billings.find(
-        (billing) =>
-            billing.student_id === enrollment.student_id &&
-            billing.period_id === enrollment.period_id &&
-            billing.billing_type_code === "REGISTRATION"
-    );
-};
 </script>
 
 <template>
