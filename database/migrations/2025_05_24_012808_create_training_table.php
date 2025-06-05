@@ -22,15 +22,22 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('description')->nullable();
             $table->timestamps();
+
+            $table->foreign('group_code')->references('code')->on('group')->onDelete('cascade');
+            $table->foreign('period_id')->references('id')->on('period')->onDelete('cascade');
+            $table->foreign('coach_id')->references('id')->on('coach')->onDelete('cascade');
         });
 
         Schema::create('training_attendance', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('training_id')->nullable()->index();
             $table->unsignedBigInteger('student_id')->nullable()->index();
-            $table->string('attendance')->nullable()->default('ABSENCE');
+            $table->string('attendance')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->foreign('training_id')->references('id')->on('training')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
         });
     }
 

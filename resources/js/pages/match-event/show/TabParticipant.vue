@@ -1,5 +1,5 @@
 <script setup>
-import { watchEffect, ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import {
     Table,
@@ -14,9 +14,8 @@ import { Input } from "@/components/ui/input/index";
 import { CircleCheck, Circle, LoaderCircle } from "lucide-vue-next";
 
 const props = defineProps({
-    training: Object,
+    match_event: Object,
     attendances: Object,
-    students: Object,
 });
 
 const form = useForm({
@@ -24,22 +23,32 @@ const form = useForm({
 });
 
 watchEffect(() => {
-    form.attendances = props.students.map((student) => {
-        const existing = props.training.attendances?.find(
-            (item) => item.student_id === student.id
+    if (
+        form.attendances.length === 0 &&
+        props.match_event.participants?.length
+    ) {
+        form.attendances = props.match_event.participants.map(
+            (participant) => ({
+                student_id: participant.student_id,
+                attendance: participant.attendance,
+                notes: participant.notes,
+            })
         );
-        return {
-            student_id: student.id,
-            notes: existing?.notes ?? "",
-            attendance: existing?.attendance ?? "",
-        };
-    });
+    }
 });
 
 const isEditAttendance = ref(false);
 
+const resetAttendance = () => {
+    form.attendances = props.match_event.participants.map((participant) => ({
+        student_id: participant.student_id,
+        attendance: participant.attendance,
+        notes: participant.notes,
+    }));
+};
+
 const submit = () => {
-    form.post(route("training.attendance", props.training.id), {
+    form.post(route("match-event.attendance", props.match_event.id), {
         preserveScroll: true,
         preserveState: true,
         onFinish: () => {
@@ -56,7 +65,7 @@ const submit = () => {
                 <TableHeader>
                     <TableRow>
                         <TableHead class="w-[10px]">No</TableHead>
-                        <TableHead>Siswa</TableHead>
+                        <TableHead>Pemain</TableHead>
                         <template
                             v-for="(item, index) in attendances"
                             :key="index"
@@ -67,16 +76,18 @@ const submit = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <template v-if="students.length > 0">
+                    <template v-if="match_event.participants?.length > 0">
                         <TableRow
-                            v-for="(student, index_student) in students"
-                            :key="index_student"
+                            v-for="(
+                                participant, index_participant
+                            ) in match_event.participants"
+                            :key="index_participant"
                         >
                             <TableCell class="font-medium">
-                                {{ index_student + 1 }}
+                                {{ index_participant + 1 }}
                             </TableCell>
                             <TableCell>
-                                {{ student.name ?? "-" }}
+                                {{ participant.student?.name ?? "-" }}
                             </TableCell>
                             <template
                                 v-for="attendance in attendances"
@@ -93,7 +104,7 @@ const submit = () => {
                                         @click="
                                             isEditAttendance
                                                 ? (form.attendances[
-                                                      index_student
+                                                      index_participant
                                                   ].attendance =
                                                       attendance.value)
                                                 : null
@@ -101,8 +112,9 @@ const submit = () => {
                                     >
                                         <CircleCheck
                                             v-if="
-                                                form.attendances[index_student]
-                                                    .attendance ===
+                                                form.attendances[
+                                                    index_participant
+                                                ].attendance ===
                                                 attendance.value
                                             "
                                             class="size-5 text-green-500"
@@ -118,10 +130,11 @@ const submit = () => {
                                 <Input
                                     class="border-none shadow-none"
                                     type="text"
-                                    :name="`attendance_${index_student}_notes`"
+                                    :name="`attendance_${index_participant}_notes`"
                                     autocomplete="off"
                                     v-model="
-                                        form.attendances[index_student].notes
+                                        form.attendances[index_participant]
+                                            .notes
                                     "
                                     :readonly="!isEditAttendance"
                                 />
@@ -141,7 +154,10 @@ const submit = () => {
                 </TableBody>
             </Table>
         </div>
-        <div v-if="students.length > 0" class="flex justify-end items-center">
+        <div
+            v-if="match_event.participants?.length > 0"
+            class="flex justify-end items-center"
+        >
             <div v-if="isEditAttendance" class="space-x-2">
                 <Button type="submit" :disabled="form.processing">
                     <LoaderCircle
@@ -150,11 +166,25 @@ const submit = () => {
                     />
                     Simpan Kehadiran
                 </Button>
-                <Button variant="outline" @click="isEditAttendance = false">
+                <Button
+                    type="button"
+                    variant="outline"
+                    @click="
+                        () => {
+                            isEditAttendance = false;
+                            resetAttendance();
+                        }
+                    "
+                >
                     Batal
                 </Button>
             </div>
-            <Button v-else variant="secondary" @click="isEditAttendance = true">
+            <Button
+                v-else
+                type="button"
+                variant="secondary"
+                @click="isEditAttendance = true"
+            >
                 Ubah Kehadiran
             </Button>
         </div>

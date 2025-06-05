@@ -21,6 +21,7 @@ import {
     Group,
     FileUser,
     Receipt,
+    GitCompare,
 } from "lucide-vue-next";
 import AppLogo from "./AppLogo.vue";
 import usePermissions from "@/composables/usePermissions";
@@ -94,6 +95,12 @@ const activityNavItems = [
         icon: BookOpen,
         permission: "training-index",
     },
+    {
+        title: "Pertandingan",
+        href: "/match-event",
+        icon: GitCompare,
+        permission: "match-event-index",
+    },
 ];
 </script>
 
@@ -129,7 +136,7 @@ const activityNavItems = [
                 :items="dataNavItems"
             />
             <NavMain
-                v-if="canAny('coach-index')"
+                v-if="canAny('training-index')"
                 group-label="Aktifitas"
                 :items="activityNavItems"
             />

@@ -5,31 +5,36 @@ namespace App\Http\Controllers;
 use App\Enums\Attendance;
 use App\Models\Coach;
 use App\Models\Group;
+use App\Models\MatchEvent;
 use App\Models\Period;
 use App\Models\Student;
-use App\Models\Training;
 use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class TrainingController extends Controller
+class MatchEventController extends Controller
 {
     use HasPermissionCheck;
 
     protected $groups = [];
     protected $periods = [];
     protected $coaches = [];
+    protected $students = [];
     protected $attendances = [];
     protected $attributes = [
         'group_code' => 'Grup',
         'period_id' => 'Periode',
         'coach_id' => 'Pelatih',
-        'training_date' => 'Tanggal Pelatihan',
+        'opponent' => 'Nama Tim Lawan',
+        'match_date' => 'Tanggal Pertandingan',
         'start_time' => 'Waktu Mulai',
         'end_time' => 'Waktu Selesai',
+        'group_score' => 'Skor Tim',
+        'opponent_score' => 'Skor Lawan',
         'location' => 'Lokasi',
         'description' => 'Deskripsi',
+        'participants.*.student_id' => 'Pemain',
     ];
 
     public function __construct()
@@ -37,6 +42,9 @@ class TrainingController extends Controller
         $this->groups = Group::where('is_active', true)->get();
         $this->periods = Period::where('is_active', true)->get();
         $this->coaches = Coach::where('is_active', true)->get();
+        $this->students = Student::with(['enrollment'])->whereHas('enrollment', function ($query) {
+            $query->where('is_active', true);
+        })->get();
         $this->attendances = Attendance::options();
     }
 
@@ -45,14 +53,14 @@ class TrainingController extends Controller
      */
     public function index(Request $request)
     {
-        $this->checkPermission('training-index');
+        $this->checkPermission('match-event-index');
 
         $search = $request->search;
         $per_page = $request->per_page ?? "5";
         $filter = $request->filter ?? 'desc';
 
-        $trainings = Training::query()
-            ->with(['group', 'period', 'coach', 'attendances'])
+        $match_events = MatchEvent::query()
+            ->with(['group', 'period', 'coach', 'participants'])
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('group', function ($sub) use ($search) {
@@ -71,8 +79,8 @@ class TrainingController extends Controller
             ->paginate($per_page)
             ->withQueryString();
 
-        return Inertia::render('training/Index', [
-            'trainings' => $trainings,
+        return Inertia::render('match-event/Index', [
+            'match_events' => $match_events,
             'search_term' => $search,
             'per_page_term' => $per_page,
             'filter_term' => $filter,
@@ -84,12 +92,13 @@ class TrainingController extends Controller
      */
     public function create()
     {
-        $this->checkPermission('training-create');
+        $this->checkPermission('match-event-create');
 
-        return Inertia::render('training/Create', [
+        return Inertia::render('match-event/Create', [
             'groups' => $this->groups,
             'periods' => $this->periods,
             'coaches' => $this->coaches,
+            'students' => $this->students,
         ]);
     }
 
@@ -98,33 +107,53 @@ class TrainingController extends Controller
      */
     public function store(Request $request)
     {
-        $this->checkPermission('training-create');
+        $this->checkPermission('match-event-create');
 
         $request->validate([
             'group_code' => ['required', 'exists:group,code'],
             'period_id' => ['required', 'exists:period,id'],
             'coach_id' => ['required', 'exists:coach,id'],
-            'training_date' => ['required', 'date'],
+            'opponent' => ['required', 'string', 'max:255'],
+            'match_date' => ['required', 'date'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time'   => ['required', 'date_format:H:i', 'after:start_time'],
+            'group_score' => ['required', 'numeric'],
+            'opponent_score' => ['required', 'numeric'],
             'location' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'participants' => ['nullable', 'array'],
+            'participants.*.student_id' => ['nullable', 'exists:student,id'],
         ], [], $this->attributes);
 
         try {
             DB::beginTransaction();
-            $training = Training::create([
+            $match_event = MatchEvent::create([
                 'group_code' => $request->group_code,
                 'period_id' => $request->period_id,
                 'coach_id' => $request->coach_id,
-                'training_date' => $request->training_date,
+                'opponent' => strtoupper($request->opponent),
+                'match_date' => $request->match_date,
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time,
+                'group_score' => $request->group_score,
+                'opponent_score' => $request->opponent_score,
                 'location' => $request->location,
                 'description' => $request->description,
             ]);
+            if ($request->participants) {
+                foreach ($request->participants as $key => $value) {
+                    if (!empty($value['student_id'])) {
+                        $match_event->participants()->create([
+                            'match_event_id' => $match_event->id,
+                            'student_id' => $value['student_id'],
+                            'attendance' => null,
+                            'notes' => null,
+                        ]);
+                    }
+                }
+            }
             DB::commit();
-            return redirect()->route('training.show', $training->id)->with('success', 'Pelatihan berhasil ditambahkan');
+            return redirect()->route('match-event.show', $match_event->id)->with('success', 'Pertandingan berhasil ditambahkan');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -136,17 +165,12 @@ class TrainingController extends Controller
      */
     public function show(string $id)
     {
-        $this->checkPermission('training-show');
+        $this->checkPermission('match-event-show');
 
-        $training = Training::with(['group', 'period', 'coach', 'attendances'])->findOrFail($id);
-        $students = Student::whereHas('enrollments', function ($query) use ($training) {
-            $query->where('period_id', $training->period_id)
-                ->where('group_code', $training->group_code);
-        })->get();
-        return Inertia::render('training/Show', [
-            'training' => $training,
+        $match_event = MatchEvent::with(['group', 'period', 'coach', 'participants', 'participants.student'])->findOrFail($id);
+        return Inertia::render('match-event/Show', [
+            'match_event' => $match_event,
             'attendances' => $this->attendances,
-            'students' => $students,
         ]);
     }
 
@@ -155,14 +179,14 @@ class TrainingController extends Controller
      */
     public function edit(string $id)
     {
-        $this->checkPermission('training-edit');
-
-        $training = Training::with(['group', 'period', 'coach', 'attendances', 'attendances.student'])->findOrFail($id);
-        return Inertia::render('training/Edit', [
+        $this->checkPermission('match-event-edit');
+        $match_event = MatchEvent::with(['group', 'period', 'coach', 'participants', 'participants.student'])->findOrFail($id);
+        return Inertia::render('match-event/Edit', [
             'groups' => $this->groups,
             'periods' => $this->periods,
             'coaches' => $this->coaches,
-            'training' => $training,
+            'students' => $this->students,
+            'match_event' => $match_event,
         ]);
     }
 
@@ -171,32 +195,61 @@ class TrainingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $this->checkPermission('training-edit');
+        $this->checkPermission('match-event-edit');
 
         $request->validate([
             'group_code' => ['required', 'exists:group,code'],
             'period_id' => ['required', 'exists:period,id'],
             'coach_id' => ['required', 'exists:coach,id'],
-            'training_date' => ['required', 'date'],
+            'opponent' => ['required', 'string', 'max:255'],
+            'match_date' => ['required', 'date'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time'   => ['required', 'date_format:H:i', 'after:start_time'],
+            'group_score' => ['required', 'numeric'],
+            'opponent_score' => ['required', 'numeric'],
             'location' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'participants' => ['nullable', 'array'],
+            'participants.*.student_id' => ['nullable', 'exists:student,id'],
         ], [], $this->attributes);
 
         try {
-            $training = Training::findOrFail($id);
             DB::beginTransaction();
-            $training->update([
+            $match_event = MatchEvent::findOrFail($id);
+            $match_event->update([
+                'group_code' => $request->group_code,
+                'period_id' => $request->period_id,
                 'coach_id' => $request->coach_id,
-                'training_date' => $request->training_date,
+                'opponent' => strtoupper($request->opponent),
+                'match_date' => $request->match_date,
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time,
+                'group_score' => $request->group_score,
+                'opponent_score' => $request->opponent_score,
                 'location' => $request->location,
                 'description' => $request->description,
             ]);
+            // Sinkronisasi peserta
+            $new_student_ids = collect($request->participants)
+                ->pluck('student_id')
+                ->filter() // buang null/kosong
+                ->unique()
+                ->values()
+                ->all();
+            $existing_student_ids = $match_event->participants()->pluck('student_id')->all();
+            // Hapus peserta yang tidak lagi ada
+            $match_event->participants()
+                ->whereNotIn('student_id', $new_student_ids)
+                ->delete();
+            // Tambah peserta baru
+            $toInsert = array_diff($new_student_ids, $existing_student_ids);
+            foreach ($toInsert as $student_id) {
+                $match_event->participants()->create([
+                    'student_id' => $student_id,
+                ]);
+            }
             DB::commit();
-            return redirect()->route('training.show', $training->id)->with('success', 'Pelatihan berhasil diubah');
+            return redirect()->route('match-event.show', $match_event->id)->with('success', 'Pertandingan berhasil diubah');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -208,14 +261,14 @@ class TrainingController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->checkPermission('training-delete');
+        $this->checkPermission('match-event-delete');
 
         try {
             DB::beginTransaction();
-            $training = Training::findOrFail($id);
-            $training->delete();
+            $match_event = MatchEvent::findOrFail($id);
+            $match_event->delete();
             DB::commit();
-            return redirect()->route('training.index')->with('success', 'Pelatihan berhasil dihapus');
+            return redirect()->route('match-event.index')->with('success', 'Pertandingan berhasil dihapus');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -225,20 +278,20 @@ class TrainingController extends Controller
     /**
      * Change the specified attendance.
      */
-    public function attendance(Request $request, string $training_id)
+    public function attendance(Request $request, string $match_event_id)
     {
-        $this->checkPermission('training-attendance');
+        $this->checkPermission('match-event-attendance');
 
         try {
             DB::beginTransaction();
-            $training = Training::findOrFail($training_id);
+            $match_event = MatchEvent::findOrFail($match_event_id);
             if ($request->attendances) {
                 foreach ($request->attendances as $key => $value) {
-                    $training->attendances()->updateOrCreate([
-                        'training_id' => $training_id,
+                    $match_event->participants()->updateOrCreate([
+                        'match_event_id' => $match_event_id,
                         'student_id' => $value['student_id'],
                     ], [
-                        'training_id' => $training_id,
+                        'match_event_id' => $match_event_id,
                         'student_id' => $value['student_id'],
                         'attendance' => $value['attendance'],
                         'notes' => $value['notes'],
@@ -246,7 +299,7 @@ class TrainingController extends Controller
                 }
             }
             DB::commit();
-            return redirect()->route('training.show', $training_id)->with('success', 'Kehadiran berhasil diperbaharui');
+            return redirect()->route('match-event.show', $match_event_id)->with('success', 'Kehadiran berhasil diperbaharui');
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;

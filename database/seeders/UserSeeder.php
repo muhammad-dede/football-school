@@ -41,32 +41,20 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'group-edit'],
             ['guard_name' => 'web', 'name' => 'group-delete'],
             ['guard_name' => 'web', 'name' => 'group-status'],
-            // Training
-            ['guard_name' => 'web', 'name' => 'training-index'],
-            ['guard_name' => 'web', 'name' => 'training-create'],
-            ['guard_name' => 'web', 'name' => 'training-edit'],
-            ['guard_name' => 'web', 'name' => 'training-delete'],
-            ['guard_name' => 'web', 'name' => 'training-status'],
-            // Match
-            ['guard_name' => 'web', 'name' => 'match-index'],
-            ['guard_name' => 'web', 'name' => 'match-create'],
-            ['guard_name' => 'web', 'name' => 'match-edit'],
-            ['guard_name' => 'web', 'name' => 'match-delete'],
-            ['guard_name' => 'web', 'name' => 'match-status'],
             // Coach
             ['guard_name' => 'web', 'name' => 'coach-index'],
             ['guard_name' => 'web', 'name' => 'coach-create'],
             ['guard_name' => 'web', 'name' => 'coach-edit'],
             ['guard_name' => 'web', 'name' => 'coach-delete'],
-            ['guard_name' => 'web', 'name' => 'coach-status'],
             ['guard_name' => 'web', 'name' => 'coach-show'],
+            ['guard_name' => 'web', 'name' => 'coach-status'],
             // Student
             ['guard_name' => 'web', 'name' => 'student-index'],
             ['guard_name' => 'web', 'name' => 'student-create'],
             ['guard_name' => 'web', 'name' => 'student-edit'],
             ['guard_name' => 'web', 'name' => 'student-delete'],
-            ['guard_name' => 'web', 'name' => 'student-status'],
             ['guard_name' => 'web', 'name' => 'student-show'],
+            ['guard_name' => 'web', 'name' => 'student-status'],
             ['guard_name' => 'web', 'name' => 'student-enrollment-create'],
             ['guard_name' => 'web', 'name' => 'student-enrollment-edit'],
             ['guard_name' => 'web', 'name' => 'student-enrollment-delete'],
@@ -81,6 +69,13 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'training-delete'],
             ['guard_name' => 'web', 'name' => 'training-show'],
             ['guard_name' => 'web', 'name' => 'training-attendance'],
+            // Match event
+            ['guard_name' => 'web', 'name' => 'match-event-index'],
+            ['guard_name' => 'web', 'name' => 'match-event-create'],
+            ['guard_name' => 'web', 'name' => 'match-event-edit'],
+            ['guard_name' => 'web', 'name' => 'match-event-delete'],
+            ['guard_name' => 'web', 'name' => 'match-event-show'],
+            ['guard_name' => 'web', 'name' => 'match-event-attendance'],
         ];
 
         foreach ($permissions as $key => $value) {
@@ -113,18 +108,6 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('group-edit');
                 $role->givePermissionTo('group-delete');
                 $role->givePermissionTo('group-status');
-                // Training
-                $role->givePermissionTo('training-index');
-                $role->givePermissionTo('training-create');
-                $role->givePermissionTo('training-edit');
-                $role->givePermissionTo('training-delete');
-                $role->givePermissionTo('training-status');
-                // Match
-                $role->givePermissionTo('match-index');
-                $role->givePermissionTo('match-create');
-                $role->givePermissionTo('match-edit');
-                $role->givePermissionTo('match-delete');
-                $role->givePermissionTo('match-status');
                 // Coach
                 $role->givePermissionTo('coach-index');
                 $role->givePermissionTo('coach-create');
@@ -153,6 +136,13 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('training-delete');
                 $role->givePermissionTo('training-show');
                 $role->givePermissionTo('training-attendance');
+                // Match Event
+                $role->givePermissionTo('match-event-index');
+                $role->givePermissionTo('match-event-create');
+                $role->givePermissionTo('match-event-edit');
+                $role->givePermissionTo('match-event-delete');
+                $role->givePermissionTo('match-event-show');
+                $role->givePermissionTo('match-event-attendance');
             }
             if ($role->name === 'Leader') {
                 // Dashboard

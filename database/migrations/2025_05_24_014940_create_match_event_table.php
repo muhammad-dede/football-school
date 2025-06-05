@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('match', function (Blueprint $table) {
+        Schema::create('match_event', function (Blueprint $table) {
             $table->id();
             $table->string('group_code', 20)->nullable()->index();
             $table->unsignedBigInteger('period_id')->nullable()->index();
@@ -25,15 +25,22 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('description')->nullable();
             $table->timestamps();
+
+            $table->foreign('group_code')->references('code')->on('group')->onDelete('cascade');
+            $table->foreign('period_id')->references('id')->on('period')->onDelete('cascade');
+            $table->foreign('coach_id')->references('id')->on('coach')->onDelete('cascade');
         });
 
-        Schema::create('match_participant', function (Blueprint $table) {
+        Schema::create('match_event_participant', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('match_id')->nullable()->index();
+            $table->unsignedBigInteger('match_event_id')->nullable()->index();
             $table->unsignedBigInteger('student_id')->nullable()->index();
             $table->string('attendance')->nullable()->default('ABSENCE');
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->foreign('match_event_id')->references('id')->on('match_event')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('student')->onDelete('cascade');
         });
     }
 
@@ -42,6 +49,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('match');
+        Schema::dropIfExists('match_event');
+        Schema::dropIfExists('match_event_participant');
     }
 };

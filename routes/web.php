@@ -49,6 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Training
     Route::post('training/attendance/{training}', [App\Http\Controllers\TrainingController::class, 'attendance'])->name('training.attendance');
     Route::resource('training', App\Http\Controllers\TrainingController::class);
+    // Match Event
+    Route::post('match-event/attendance/{match_event}', [App\Http\Controllers\MatchEventController::class, 'attendance'])->name('match-event.attendance');
+    Route::resource('match-event', App\Http\Controllers\MatchEventController::class);
 });
 
 require __DIR__ . '/auth.php';

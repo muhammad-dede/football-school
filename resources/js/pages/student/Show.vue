@@ -163,8 +163,8 @@ const unpaidBilling = computed(() => {
                     </div>
                 </div>
                 <Link
-                    v-if="can('student-enrollment-create')"
-                    :href="route('student.enrollment.create', unpaidBilling.id)"
+                    v-if="can('student-payment-create')"
+                    :href="route('student.payment.create', unpaidBilling.id)"
                     :class="[
                         buttonVariants({ variant: 'default', size: 'sm' }),
                     ]"
