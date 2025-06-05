@@ -42,9 +42,7 @@ class MatchEventController extends Controller
         $this->groups = Group::where('is_active', true)->get();
         $this->periods = Period::where('is_active', true)->get();
         $this->coaches = Coach::where('is_active', true)->get();
-        $this->students = Student::with(['enrollment'])->whereHas('enrollment', function ($query) {
-            $query->where('is_active', true);
-        })->get();
+        $this->students = Student::with(['currentProgram'])->whereHas('currentProgram')->get();
         $this->attendances = Attendance::options();
     }
 

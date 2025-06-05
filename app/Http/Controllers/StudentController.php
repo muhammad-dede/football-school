@@ -8,11 +8,13 @@ use App\Enums\StatusPayment;
 use App\Models\BankAccount;
 use App\Models\Billing;
 use App\Models\Group;
+use App\Models\MatchEvent;
+use App\Models\MatchEventParticipant;
 use App\Models\Payment;
 use App\Models\Period;
 use App\Models\Position;
 use App\Models\Student;
-use App\Models\StudentEnrollment;
+use App\Models\StudentProgram;
 use App\Models\Training;
 use App\Models\User;
 use App\Traits\HasPermissionCheck;
@@ -46,7 +48,7 @@ class StudentController extends Controller
         'weight_kg' => 'Berat Badan',
         'email' => 'Email',
         'password' => 'Password',
-        // Enrollment
+        // program
         'period_id' => 'Periode',
         'group_code' => 'Grup',
         'position_code' => 'Posisi',
@@ -86,7 +88,7 @@ class StudentController extends Controller
         $per_page = $request->per_page ?? "5";
         $filter = $request->filter ?? 'desc';
 
-        $students = Student::query()->with(['user', 'enrollment'])
+        $students = Student::query()->with(['user', 'currentProgram'])
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%');
@@ -187,9 +189,9 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-show');
 
-        $student = Student::with(['user', 'enrollment', 'enrollments'])->findOrFail($id);
+        $student = Student::with(['user', 'currentProgram', 'programs'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
-        $enrollments = StudentEnrollment::with(['student', 'period', 'group', 'position', 'alternativePosition'])
+        $programs = StudentProgram::with(['student', 'period', 'group', 'position', 'alternativePosition'])
             ->where('student_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -198,19 +200,24 @@ class StudentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $groupCodes = $student->enrollments->pluck('group_code')->unique()->toArray();
-        $periodIds  = $student->enrollments->pluck('period_id')->unique()->toArray();
+        $group_codes = $student->programs->pluck('group_code')->unique()->toArray();
+        $period_ids  = $student->programs->pluck('period_id')->unique()->toArray();
         $trainings = Training::with(['group', 'period', 'coach', 'attendances'])
-            ->whereIn('group_code', $groupCodes)
-            ->whereIn('period_id', $periodIds)
+            ->whereIn('group_code', $group_codes)
+            ->whereIn('period_id', $period_ids)
+            ->get();
+        $match_event_participants = MatchEventParticipant::with(['matchEvent', 'matchEvent.group', 'matchEvent.period', 'matchEvent.coach'])
+            ->where('student_id', $id)
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('student/Show', [
+            'attendances' => $this->attendances,
             'student' => $student,
-            'enrollments' => $enrollments,
+            'programs' => $programs,
             'billings' => $billings,
             'trainings' => $trainings,
-            'attendances' => $this->attendances,
+            'match_event_participants' => $match_event_participants,
         ]);
     }
 
@@ -221,7 +228,7 @@ class StudentController extends Controller
     {
         $this->checkPermission('student-edit');
 
-        $student = Student::with(['enrollments', 'user'])->findOrFail($id);
+        $student = Student::with(['programs', 'user'])->findOrFail($id);
         $student->photo_url = asset('storage/' . $student->photo);
         return Inertia::render('student/Edit', [
             'student' => $student,
@@ -310,15 +317,15 @@ class StudentController extends Controller
     }
 
     /**
-     * Show the form for creating a new enrollment.
+     * Show the form for creating a new program.
      */
-    public function enrollmentCreate(string $student_id)
+    public function programCreate(string $student_id)
     {
-        $this->checkPermission('student-enrollment-create');
+        $this->checkPermission('student-program-create');
 
         $student = Student::findOrFail($student_id);
 
-        return Inertia::render('student/enrollment/Create', [
+        return Inertia::render('student/program/Create', [
             'periods' => $this->periods,
             'groups' => $this->groups,
             'positions' => $this->positions,
@@ -327,11 +334,11 @@ class StudentController extends Controller
     }
 
     /**
-     * Store a newly created enrollment in storage.
+     * Store a newly created program in storage.
      */
-    public function enrollmentStore(Request $request, string $student_id)
+    public function programStore(Request $request, string $student_id)
     {
-        $this->checkPermission('student-enrollment-create');
+        $this->checkPermission('student-program-create');
 
         $student = Student::findOrFail($student_id);
 
@@ -346,7 +353,7 @@ class StudentController extends Controller
 
         try {
             DB::beginTransaction();
-            $student->enrollment()->create([
+            $student->programs()->create([
                 'period_id' => $request->period_id,
                 'group_code' => $request->group_code,
                 'position_code' => $request->position_code,
@@ -364,8 +371,8 @@ class StudentController extends Controller
             ]);
             DB::commit();
             return redirect()->route('student.show', $student->id)->with([
-                'success' => 'Team berhasil ditambahkan',
-                'page' => 'enrollment',
+                'success' => 'Program berhasil ditambahkan',
+                'page' => 'programs',
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -373,30 +380,30 @@ class StudentController extends Controller
         }
     }
     /**
-     * Show the form for updating a enrollment.
+     * Show the form for updating a program.
      */
-    public function enrollmentEdit(string $enrollment_id)
+    public function programEdit(string $program_id)
     {
-        $this->checkPermission('student-enrollment-edit');
+        $this->checkPermission('student-program-edit');
 
-        $enrollment = StudentEnrollment::with(['student'])->findOrFail($enrollment_id);
+        $program = StudentProgram::with(['student'])->findOrFail($program_id);
 
-        return Inertia::render('student/enrollment/Edit', [
+        return Inertia::render('student/program/Edit', [
             'periods' => $this->periods,
             'groups' => $this->groups,
             'positions' => $this->positions,
-            'enrollment' => $enrollment,
+            'program' => $program,
         ]);
     }
 
     /**
-     * Update a updated enrollment in storage.
+     * Update a updated program in storage.
      */
-    public function enrollmentUpdate(Request $request, string $enrollment_id)
+    public function programUpdate(Request $request, string $program_id)
     {
-        $this->checkPermission('student-enrollment-edit');
+        $this->checkPermission('student-program-edit');
 
-        $enrollment = StudentEnrollment::findOrFail($enrollment_id);
+        $program = StudentProgram::findOrFail($program_id);
 
         $request->validate([
             'period_id' => ['required', 'exists:period,id'],
@@ -409,10 +416,10 @@ class StudentController extends Controller
 
         try {
             DB::beginTransaction();
-            Billing::where('period_id', $enrollment->period_id)->where('student_id', $enrollment->student_id)->where('billing_type_code', 'REGISTRATION')->update([
+            Billing::where('period_id', $program->period_id)->where('student_id', $program->student_id)->where('billing_type_code', 'REGISTRATION')->update([
                 'period_id' => $request->period_id,
             ]);
-            $enrollment->update([
+            $program->update([
                 'period_id' => $request->period_id,
                 'group_code' => $request->group_code,
                 'position_code' => $request->position_code,
@@ -421,9 +428,9 @@ class StudentController extends Controller
                 'join_date' => $request->join_date,
             ]);
             DB::commit();
-            return redirect()->route('student.show', $enrollment->student_id)->with([
-                'success' => 'Team berhasil diubah',
-                'page' => 'enrollment',
+            return redirect()->route('student.show', $program->student_id)->with([
+                'success' => 'Program berhasil diubah',
+                'page' => 'programs',
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -434,29 +441,29 @@ class StudentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function enrollmentDestroy(string $enrollment_id)
+    public function programDestroy(string $program_id)
     {
-        $this->checkPermission('student-enrollment-delete');
+        $this->checkPermission('student-program-delete');
 
         try {
-            $enrollment = StudentEnrollment::findOrFail($enrollment_id);
-            $billing = Billing::where('student_id', $enrollment->student_id)
-                ->where('period_id', $enrollment->period_id)
+            $program = StudentProgram::findOrFail($program_id);
+            $billing = Billing::where('student_id', $program->student_id)
+                ->where('period_id', $program->period_id)
                 ->where('billing_type_code', 'REGISTRATION')
                 ->first();
             if ($billing->status === StatusBilling::PAID) {
-                return redirect()->route('student.show', $enrollment->student_id)->with([
-                    'failed' => 'Tidak dapat menghapus, team memiliki tagihan yang sudah dibayar.',
-                    'page' => 'enrollment',
+                return redirect()->route('student.show', $program->student_id)->with([
+                    'failed' => 'Tidak dapat menghapus, program memiliki tagihan yang sudah dibayar.',
+                    'page' => 'programs',
                 ]);
             }
             DB::beginTransaction();
-            $enrollment->delete();
+            $program->delete();
             $billing->delete();
             DB::commit();
-            return redirect()->route('student.show', $enrollment->student_id)->with([
-                'success' => 'Team berhasil dihapus',
-                'page' => 'enrollment',
+            return redirect()->route('student.show', $program->student_id)->with([
+                'success' => 'Program berhasil dihapus',
+                'page' => 'programs',
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -532,13 +539,13 @@ class StudentController extends Controller
             $billing->update([
                 'status' => StatusBilling::PAID,
             ]);
-            StudentEnrollment::where('student_id', $billing->student_id)->where('period_id', $billing->period_id)->update([
+            StudentProgram::where('student_id', $billing->student_id)->where('period_id', $billing->period_id)->update([
                 'is_active' => true,
             ]);
             DB::commit();
             return redirect()->route('student.show', $billing->student_id)->with([
                 'success' => 'Tagihan berhasil dibayarkan',
-                'page' => 'billing',
+                'page' => 'billings',
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();

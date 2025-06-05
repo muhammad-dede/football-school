@@ -10,11 +10,6 @@ import InputError from "@/components/InputError.vue";
 import { LoaderCircle } from "lucide-vue-next";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
-import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import LabelSpan from "@/components/LabelSpan.vue";
-import { Textarea } from "@/components/ui/textarea";
-import { onUnmounted, ref } from "vue";
 import {
     Select,
     SelectContent,
@@ -28,46 +23,45 @@ const props = defineProps({
     periods: Object,
     groups: Object,
     positions: Object,
-    enrollment: Object,
+    program: Object,
 });
 
 const breadcrumbs = [
     { title: "Dashboard", href: "/dashboard" },
     { title: "Siswa", href: "/student" },
-    { title: "Ubah Team", href: "/student/enrollment/edit" },
+    { title: "Ubah Program", href: "/student/program/edit" },
 ];
 
 const form = useForm({
-    period_id: props.enrollment?.period_id ?? "",
-    group_code: props.enrollment?.group_code ?? "",
-    position_code: props.enrollment?.position_code ?? "",
-    alternative_position_code:
-        props.enrollment?.alternative_position_code ?? "",
-    jersey_number: props.enrollment?.jersey_number ?? "",
-    join_date: props.enrollment?.join_date ?? "",
+    period_id: props.program?.period_id ?? "",
+    group_code: props.program?.group_code ?? "",
+    position_code: props.program?.position_code ?? "",
+    alternative_position_code: props.program?.alternative_position_code ?? "",
+    jersey_number: props.program?.jersey_number ?? "",
+    join_date: props.program?.join_date ?? "",
 });
 
 const submit = () => {
-    form.patch(route("student.enrollment.update", props.enrollment?.id), {
+    form.patch(route("student.program.update", props.program?.id), {
         preserveScroll: true,
     });
 };
 </script>
 
 <template>
-    <Head title="Ubah Team" />
+    <Head title="Ubah Program" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
                 <Heading
-                    title="Ubah Team"
-                    description="Formulir untuk mengubah data team yang telah terdaftar"
+                    title="Ubah Program"
+                    description="Formulir untuk mengubah data program yang telah terdaftar"
                 />
             </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>
                     <CardContent>
-                        <Heading title="Informasi Team" />
+                        <Heading title="Informasi Program" />
                         <div
                             class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6 my-4"
                         >
@@ -232,7 +226,7 @@ const submit = () => {
                             </Button>
                             <Link
                                 :href="
-                                    route('student.show', enrollment.student_id)
+                                    route('student.show', program.student_id)
                                 "
                                 :class="buttonVariants({ variant: 'outline' })"
                                 >Kembali</Link

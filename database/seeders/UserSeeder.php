@@ -55,9 +55,9 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'student-delete'],
             ['guard_name' => 'web', 'name' => 'student-show'],
             ['guard_name' => 'web', 'name' => 'student-status'],
-            ['guard_name' => 'web', 'name' => 'student-enrollment-create'],
-            ['guard_name' => 'web', 'name' => 'student-enrollment-edit'],
-            ['guard_name' => 'web', 'name' => 'student-enrollment-delete'],
+            ['guard_name' => 'web', 'name' => 'student-program-create'],
+            ['guard_name' => 'web', 'name' => 'student-program-edit'],
+            ['guard_name' => 'web', 'name' => 'student-program-delete'],
             ['guard_name' => 'web', 'name' => 'student-payment-create'],
             // Billing
             ['guard_name' => 'web', 'name' => 'billing-index'],
@@ -122,9 +122,9 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('student-delete');
                 $role->givePermissionTo('student-status');
                 $role->givePermissionTo('student-show');
-                $role->givePermissionTo('student-enrollment-create');
-                $role->givePermissionTo('student-enrollment-edit');
-                $role->givePermissionTo('student-enrollment-delete');
+                $role->givePermissionTo('student-program-create');
+                $role->givePermissionTo('student-program-edit');
+                $role->givePermissionTo('student-program-delete');
                 $role->givePermissionTo('student-payment-create');
                 // Billing
                 $role->givePermissionTo('billing-index');

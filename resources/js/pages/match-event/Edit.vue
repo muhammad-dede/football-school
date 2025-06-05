@@ -85,7 +85,7 @@ const availableStudents = (rowIndex) => {
         .filter(Boolean); // buang string kosong
 
     return props.students.filter((student) => {
-        const e = student.enrollment;
+        const e = student.current_program;
         return (
             e &&
             e.period_id == form.period_id &&

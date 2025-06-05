@@ -23,8 +23,11 @@ const form = useForm({
     attendances: [],
 });
 
+const initialAttendances = ref([]);
+const isEditAttendance = ref(false);
+
 watchEffect(() => {
-    form.attendances = props.students.map((student) => {
+    const newAttendances = props.students.map((student) => {
         const existing = props.training.attendances?.find(
             (item) => item.student_id === student.id
         );
@@ -34,9 +37,9 @@ watchEffect(() => {
             attendance: existing?.attendance ?? "",
         };
     });
+    form.attendances = newAttendances;
+    initialAttendances.value = JSON.parse(JSON.stringify(newAttendances));
 });
-
-const isEditAttendance = ref(false);
 
 const submit = () => {
     form.post(route("training.attendance", props.training.id), {
@@ -150,7 +153,15 @@ const submit = () => {
                     />
                     Simpan Kehadiran
                 </Button>
-                <Button variant="outline" @click="isEditAttendance = false">
+                <Button
+                    variant="outline"
+                    @click="
+                        isEditAttendance = false;
+                        form.attendances = JSON.parse(
+                            JSON.stringify(initialAttendances)
+                        );
+                    "
+                >
                     Batal
                 </Button>
             </div>

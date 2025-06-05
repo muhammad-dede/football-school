@@ -15,14 +15,16 @@ class Student extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function enrollments()
+    public function currentProgram()
     {
-        return $this->hasMany(StudentEnrollment::class, 'student_id', 'id');
+        return $this->hasOne(StudentProgram::class, 'student_id', 'id')
+            ->where('is_active', true)
+            ->latest();
     }
 
-    public function enrollment()
+    public function programs()
     {
-        return $this->hasOne(StudentEnrollment::class, 'student_id', 'id')->latest();
+        return $this->hasMany(StudentProgram::class, 'student_id', 'id');
     }
 
     public function billings()

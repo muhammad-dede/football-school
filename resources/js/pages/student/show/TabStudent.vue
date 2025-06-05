@@ -46,17 +46,11 @@ const props = defineProps({
                     </template>
                     <Badge
                         :variant="
-                            student.enrollment?.is_active
-                                ? 'default'
-                                : 'destructive'
+                            student.current_program ? 'default' : 'destructive'
                         "
                         class="py-2 px-3 rounded-full h-fit"
                     >
-                        {{
-                            student.enrollment?.is_active
-                                ? "Aktif"
-                                : "Tidak Aktif"
-                        }}
+                        {{ student.current_program ? "Aktif" : "Tidak Aktif" }}
                     </Badge>
                 </div>
                 <div class="grid divide-y divide-gray-100">

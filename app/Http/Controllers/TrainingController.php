@@ -139,13 +139,13 @@ class TrainingController extends Controller
         $this->checkPermission('training-show');
 
         $training = Training::with(['group', 'period', 'coach', 'attendances'])->findOrFail($id);
-        $students = Student::whereHas('enrollments', function ($query) use ($training) {
+        $students = Student::whereHas('currentProgram', function ($query) use ($training) {
             $query->where('period_id', $training->period_id)
                 ->where('group_code', $training->group_code);
         })->get();
         return Inertia::render('training/Show', [
-            'training' => $training,
             'attendances' => $this->attendances,
+            'training' => $training,
             'students' => $students,
         ]);
     }

@@ -1,5 +1,4 @@
 <script setup>
-import { computed } from "vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 import { Head, useForm, Link } from "@inertiajs/vue3";
 import MainContent from "@/components/MainContent.vue";
@@ -76,7 +75,7 @@ const availableStudents = (rowIndex) => {
         .filter(Boolean);
 
     return props.students.filter((student) => {
-        const e = student.enrollment;
+        const e = student.current_program;
         return (
             e &&
             e.period_id == form.period_id &&

@@ -35,7 +35,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('match_event_id')->nullable()->index();
             $table->unsignedBigInteger('student_id')->nullable()->index();
-            $table->string('attendance')->nullable()->default('ABSENCE');
+            $table->string('attendance')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 

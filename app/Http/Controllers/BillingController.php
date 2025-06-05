@@ -7,7 +7,7 @@ use App\Enums\StatusPayment;
 use App\Models\BankAccount;
 use App\Models\Billing;
 use App\Models\Payment;
-use App\Models\StudentEnrollment;
+use App\Models\StudentProgram;
 use App\Traits\HasPermissionCheck;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -142,7 +142,7 @@ class BillingController extends Controller
             $billing->update([
                 'status' => StatusBilling::PAID,
             ]);
-            StudentEnrollment::where('student_id', $billing->student_id)->where('period_id', $billing->period_id)->update([
+            StudentProgram::where('student_id', $billing->student_id)->where('period_id', $billing->period_id)->update([
                 'is_active' => true,
             ]);
             DB::commit();

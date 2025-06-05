@@ -4,7 +4,6 @@ import { Head, Link, router } from "@inertiajs/vue3";
 import MainContent from "@/components/MainContent.vue";
 import { Card, CardContent } from "@/components/ui/card/index";
 import { Button } from "@/components/ui/button/index";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Phone,
     Calendar,
@@ -130,159 +129,130 @@ const destroy = () => {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </HeadingGroup>
-            <Tabs default-value="coach" class="w-full">
-                <TabsList class="grid w-full grid-cols-2">
-                    <TabsTrigger value="coach">Biodata</TabsTrigger>
-                    <TabsTrigger value="training">Pelatihan</TabsTrigger>
-                </TabsList>
-                <TabsContent value="coach">
-                    <div class="flex flex-col lg:flex-row gap-4">
-                        <Card class="h-fit w-full lg:w-[50%] xl:w-[60%] py-3">
-                            <CardContent>
-                                <h5
-                                    class="text-sm font-bold text-gray-500 mb-4"
+            <div class="flex flex-col lg:flex-row gap-4">
+                <Card class="h-fit w-full lg:w-[50%] xl:w-[60%] py-3">
+                    <CardContent>
+                        <h5 class="text-sm font-bold text-gray-500 mb-4">
+                            Informasi Biodata
+                        </h5>
+                        <div class="flex justify-between">
+                            <template v-if="coach.photo_url">
+                                <img
+                                    :src="coach.photo_url"
+                                    alt="Preview"
+                                    class="h-24 w-24 object-cover rounded-lg border cursor-pointer"
+                                    @click="togglePhoto"
+                                />
+                            </template>
+                            <template v-else>
+                                <div
+                                    class="h-24 w-24 flex items-center justify-center border rounded-lg text-gray-500 text-xs"
                                 >
-                                    Informasi Biodata
-                                </h5>
-                                <div class="flex justify-between">
-                                    <template v-if="coach.photo_url">
-                                        <img
-                                            :src="coach.photo_url"
-                                            alt="Preview"
-                                            class="h-24 w-24 object-cover rounded-lg border cursor-pointer"
-                                            @click="togglePhoto"
-                                        />
-                                    </template>
-                                    <template v-else>
-                                        <div
-                                            class="h-24 w-24 flex items-center justify-center border rounded-lg text-gray-500 text-xs"
-                                        >
-                                            Belum ada gambar
-                                        </div>
-                                    </template>
-                                    <Badge
-                                        :variant="
-                                            coach.is_active
-                                                ? 'default'
-                                                : 'destructive'
-                                        "
-                                        class="py-2 px-3 rounded-full h-fit"
-                                    >
-                                        {{
-                                            coach.is_active
-                                                ? "Aktif"
-                                                : "Tidak Aktif"
-                                        }}
-                                    </Badge>
+                                    Belum ada gambar
                                 </div>
-                                <div class="grid divide-y divide-gray-100">
-                                    <InfoItem
-                                        :label="coach.national_id_number"
-                                        :value="coach.name"
-                                        :icon="IdCard"
-                                    />
-                                    <InfoItem
-                                        label="Tempat Lahir"
-                                        :value="coach.place_of_birth"
-                                        :icon="MapPinCheck"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Tanggal Lahir"
-                                        :value="dateFormat(coach.date_of_birth)"
-                                        :icon="Calendar"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Jenis Kelamin"
-                                        :value="
-                                            coach.gender === 'MALE'
-                                                ? 'Laki-laki'
-                                                : 'Perempuan'
-                                        "
-                                        :icon="Mars"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Alamat"
-                                        :value="coach.address"
-                                        :icon="MapPinCheck"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Telepon"
-                                        :value="coach.phone"
-                                        :icon="Phone"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Email"
-                                        :value="coach.user?.email"
-                                        :icon="Mail"
-                                        background
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card class="h-fit w-full lg:w-[50%] xl:w-[40%] py-3">
-                            <CardContent>
-                                <h5
-                                    class="text-sm font-bold text-gray-500 mb-4"
-                                >
-                                    Informasi Kepelatihan
-                                </h5>
-                                <div class="grid divide-y divide-gray-100">
-                                    <InfoItem
-                                        label="Lisensi Kepelatihan"
-                                        :value="coach.coaching_license ?? '-'"
-                                        :icon="CreditCard"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Nomor Lisensi"
-                                        :value="coach.license_number ?? '-'"
-                                        :icon="FileDigit"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Tanggal Terbit"
-                                        :value="
-                                            dateFormat(
-                                                coach.license_issued_at
-                                            ) ?? '-'
-                                        "
-                                        :icon="Calendar"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Tanggal Berakhir"
-                                        :value="
-                                            dateFormat(
-                                                coach.license_expired_at
-                                            ) ?? '-'
-                                        "
-                                        :icon="Calendar"
-                                        background
-                                    />
-                                    <InfoItem
-                                        label="Lembaga Kepelatihan"
-                                        :value="coach.license_issuer ?? '-'"
-                                        :icon="Landmark"
-                                        background
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-                <TabsContent value="training">
-                    <Card>
-                        <CardContent class="space-y-2">
-                            <!--  -->
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                            </template>
+                            <Badge
+                                :variant="
+                                    coach.is_active ? 'default' : 'destructive'
+                                "
+                                class="py-2 px-3 rounded-full h-fit"
+                            >
+                                {{ coach.is_active ? "Aktif" : "Tidak Aktif" }}
+                            </Badge>
+                        </div>
+                        <div class="grid divide-y divide-gray-100">
+                            <InfoItem
+                                :label="coach.national_id_number"
+                                :value="coach.name"
+                                :icon="IdCard"
+                            />
+                            <InfoItem
+                                label="Tempat Lahir"
+                                :value="coach.place_of_birth"
+                                :icon="MapPinCheck"
+                                background
+                            />
+                            <InfoItem
+                                label="Tanggal Lahir"
+                                :value="dateFormat(coach.date_of_birth)"
+                                :icon="Calendar"
+                                background
+                            />
+                            <InfoItem
+                                label="Jenis Kelamin"
+                                :value="
+                                    coach.gender === 'MALE'
+                                        ? 'Laki-laki'
+                                        : 'Perempuan'
+                                "
+                                :icon="Mars"
+                                background
+                            />
+                            <InfoItem
+                                label="Alamat"
+                                :value="coach.address"
+                                :icon="MapPinCheck"
+                                background
+                            />
+                            <InfoItem
+                                label="Telepon"
+                                :value="coach.phone"
+                                :icon="Phone"
+                                background
+                            />
+                            <InfoItem
+                                label="Email"
+                                :value="coach.user?.email"
+                                :icon="Mail"
+                                background
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card class="h-fit w-full lg:w-[50%] xl:w-[40%] py-3">
+                    <CardContent>
+                        <h5 class="text-sm font-bold text-gray-500 mb-4">
+                            Informasi Kepelatihan
+                        </h5>
+                        <div class="grid divide-y divide-gray-100">
+                            <InfoItem
+                                label="Lisensi Kepelatihan"
+                                :value="coach.coaching_license ?? '-'"
+                                :icon="CreditCard"
+                                background
+                            />
+                            <InfoItem
+                                label="Nomor Lisensi"
+                                :value="coach.license_number ?? '-'"
+                                :icon="FileDigit"
+                                background
+                            />
+                            <InfoItem
+                                label="Tanggal Terbit"
+                                :value="
+                                    dateFormat(coach.license_issued_at) ?? '-'
+                                "
+                                :icon="Calendar"
+                                background
+                            />
+                            <InfoItem
+                                label="Tanggal Berakhir"
+                                :value="
+                                    dateFormat(coach.license_expired_at) ?? '-'
+                                "
+                                :icon="Calendar"
+                                background
+                            />
+                            <InfoItem
+                                label="Lembaga Kepelatihan"
+                                :value="coach.license_issuer ?? '-'"
+                                :icon="Landmark"
+                                background
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </MainContent>
     </AppLayout>
 

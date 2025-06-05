@@ -31,7 +31,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('user')->onDelete('set null');
         });
 
-        Schema::create('student_enrollment', function (Blueprint $table) {
+        Schema::create('student_program', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('student_id')->index();
             $table->unsignedBigInteger('period_id')->nullable()->index();
@@ -95,7 +95,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('student');
-        Schema::dropIfExists('student_enrollment');
+        Schema::dropIfExists('student_program');
         Schema::dropIfExists('billing');
         Schema::dropIfExists('payment');
     }

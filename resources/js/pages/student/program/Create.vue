@@ -10,11 +10,6 @@ import InputError from "@/components/InputError.vue";
 import { LoaderCircle } from "lucide-vue-next";
 import HeadingGroup from "@/components/HeadingGroup.vue";
 import Heading from "@/components/Heading.vue";
-import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import LabelSpan from "@/components/LabelSpan.vue";
-import { Textarea } from "@/components/ui/textarea";
-import { onUnmounted, ref } from "vue";
 import {
     Select,
     SelectContent,
@@ -34,7 +29,7 @@ const props = defineProps({
 const breadcrumbs = [
     { title: "Dashboard", href: "/dashboard" },
     { title: "Siswa", href: "/student" },
-    { title: "Tambah Team", href: "/student/enrollment/create" },
+    { title: "Tambah Program", href: "/student/program/create" },
 ];
 
 const form = useForm({
@@ -47,7 +42,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route("student.enrollment.store", props.student?.id), {
+    form.post(route("student.program.store", props.student?.id), {
         forceFormData: true,
         preserveScroll: true,
     });
@@ -55,19 +50,19 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Tambah Team" />
+    <Head title="Tambah Program" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <MainContent>
             <HeadingGroup>
                 <Heading
-                    title="Tambah Team"
-                    description="Formulir untuk menambahkan data team baru"
+                    title="Tambah Program"
+                    description="Formulir untuk menambahkan data program baru"
                 />
             </HeadingGroup>
             <form @submit.prevent="submit">
                 <Card>
                     <CardContent>
-                        <Heading title="Informasi Team" />
+                        <Heading title="Informasi Program" />
                         <div
                             class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6 my-4"
                         >

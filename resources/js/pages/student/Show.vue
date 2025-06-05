@@ -35,9 +35,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import TabStudent from "./show/TabStudent.vue";
-import TabEnrollment from "./show/TabEnrollment.vue";
-import TabBilling from "./show/TabBilling.vue";
-import TabTraining from "./show/TabTraining.vue";
+import TabPrograms from "./show/TabPrograms.vue";
+import TabBillings from "./show/TabBillings.vue";
+import TabTrainings from "./show/TabTrainings.vue";
+import TabMatchEventParticipants from "./show/TabMatchEventParticipants.vue";
 
 const { can } = usePermissions();
 
@@ -45,11 +46,12 @@ const page = usePage();
 const flash = page.props.flash;
 
 const props = defineProps({
+    attendances: Object,
     student: Object,
-    enrollments: Object,
+    programs: Object,
     billings: Object,
     trainings: Object,
-    attendances: Object,
+    match_event_participants: Object,
 });
 
 const breadcrumbs = [
@@ -77,8 +79,8 @@ const destroy = () => {
     });
 };
 
-const hasNoTeam = computed(() => {
-    return props.enrollments.length === 0;
+const hasNoProgram = computed(() => {
+    return props.programs.length === 0;
 });
 const unpaidBilling = computed(() => {
     return props.billings.find((billing) => billing.status === "UNPAID");
@@ -124,23 +126,23 @@ const unpaidBilling = computed(() => {
                 </DropdownMenu>
             </HeadingGroup>
             <Alert
-                v-if="hasNoTeam"
+                v-if="hasNoProgram"
                 variant="destructive"
                 class="mb-4 border-red-300 flex items-center justify-between"
             >
                 <div class="flex items-start space-x-4">
                     <AlertCircle class="w-4 h-4 mt-1 text-red-600" />
                     <div>
-                        <AlertTitle>Belum Ada Team</AlertTitle>
+                        <AlertTitle>Belum Ada Program</AlertTitle>
                         <AlertDescription class="text-red-600">
-                            Siswa belum terdaftar di team manapun. Klik Tambah
-                            untuk menambahkan team.
+                            Siswa belum terdaftar di program manapun. Klik
+                            Tambah untuk menambahkan program.
                         </AlertDescription>
                     </div>
                 </div>
                 <Link
-                    v-if="can('student-enrollment-create')"
-                    :href="route('student.enrollment.create', student.id)"
+                    v-if="can('student-program-create')"
+                    :href="route('student.program.create', student.id)"
                     :class="[
                         buttonVariants({ variant: 'default', size: 'sm' }),
                     ]"
@@ -175,10 +177,10 @@ const unpaidBilling = computed(() => {
             <Tabs :default-value="flash.page ?? 'student'" class="w-full">
                 <TabsList class="grid w-full grid-cols-5">
                     <TabsTrigger value="student">Biodata</TabsTrigger>
-                    <TabsTrigger value="enrollment">Team</TabsTrigger>
-                    <TabsTrigger value="billing">Tagihan</TabsTrigger>
-                    <TabsTrigger value="training">Pelatihan</TabsTrigger>
-                    <TabsTrigger value="match">Pertandingan</TabsTrigger>
+                    <TabsTrigger value="programs">Program</TabsTrigger>
+                    <TabsTrigger value="billings">Tagihan</TabsTrigger>
+                    <TabsTrigger value="trainings">Pelatihan</TabsTrigger>
+                    <TabsTrigger value="match_events">Pertandingan</TabsTrigger>
                 </TabsList>
                 <TabsContent value="student">
                     <TabStudent
@@ -187,34 +189,35 @@ const unpaidBilling = computed(() => {
                         :togglePhoto="togglePhoto"
                     />
                 </TabsContent>
-                <TabsContent value="enrollment">
-                    <TabEnrollment
+                <TabsContent value="programs">
+                    <TabPrograms
                         :student="student"
-                        :enrollments="enrollments"
+                        :programs="programs"
                         :dateFormat="dateFormat"
                     />
                 </TabsContent>
-                <TabsContent value="billing">
-                    <TabBilling
+                <TabsContent value="billings">
+                    <TabBillings
                         :student="student"
                         :billings="billings"
                         :dateFormat="dateFormat"
                     />
                 </TabsContent>
-                <TabsContent value="training">
-                    <TabTraining
+                <TabsContent value="trainings">
+                    <TabTrainings
                         :student="student"
                         :trainings="trainings"
                         :attendances="attendances"
                         :dateFormat="dateFormat"
                     />
                 </TabsContent>
-                <TabsContent value="match">
-                    <Card>
-                        <CardContent class="space-y-2">
-                            <!--  -->
-                        </CardContent>
-                    </Card>
+                <TabsContent value="match_events">
+                    <TabMatchEventParticipants
+                        :student="student"
+                        :match_event_participants="match_event_participants"
+                        :attendances="attendances"
+                        :dateFormat="dateFormat"
+                    />
                 </TabsContent>
             </Tabs>
         </MainContent>

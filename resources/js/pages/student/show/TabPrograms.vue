@@ -38,29 +38,29 @@ const { can } = usePermissions();
 
 const props = defineProps({
     student: Object,
-    enrollments: Object,
+    programs: Object,
     dateFormat: Function,
 });
 
-const enrollmentToDelete = ref(null);
-const confirmDelete = (enrollment) => {
-    enrollmentToDelete.value = enrollment;
+const programToDelete = ref(null);
+const confirmDelete = (program) => {
+    programToDelete.value = program;
 };
 const destroy = () => {
-    if (!enrollmentToDelete.value) return;
-    const enrollmentId = enrollmentToDelete.value.id;
-    router.delete(route("student.enrollment.destroy", enrollmentId), {
+    if (!programToDelete.value) return;
+    const programId = programToDelete.value.id;
+    router.delete(route("student.program.destroy", programId), {
         preserveScroll: true,
         onFinish: () => {
-            enrollmentToDelete.value = null;
+            programToDelete.value = null;
         },
     });
 };
 </script>
 
 <template>
-    <template v-if="enrollments.length > 0">
-        <Card v-for="(item, index) in enrollments" :key="item.id" class="py-0">
+    <template v-if="programs.length > 0">
+        <Card v-for="(item, index) in programs" :key="item.id" class="py-0">
             <CardContent class="px-4 grid divide-y divide-gray-100">
                 <div class="flex justify-between items-center">
                     <InfoItem
@@ -113,12 +113,12 @@ const destroy = () => {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     asChild
-                                    v-if="can('student-enrollment-edit')"
+                                    v-if="can('student-program-edit')"
                                 >
                                     <Link
                                         :href="
                                             route(
-                                                'student.enrollment.edit',
+                                                'student.program.edit',
                                                 item.id
                                             )
                                         "
@@ -127,7 +127,7 @@ const destroy = () => {
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    v-if="can('student-enrollment-delete')"
+                                    v-if="can('student-program-delete')"
                                     @select="() => confirmDelete(item)"
                                 >
                                     Hapus
@@ -164,17 +164,17 @@ const destroy = () => {
             <span class="text-base font-semibold">
                 Tidak ada data ditemukan
             </span>
-            <div v-if="can('student-enrollment-create')">
+            <div v-if="can('student-program-create')">
                 <Link
-                    :href="route('student.enrollment.create', student.id)"
+                    :href="route('student.program.create', student.id)"
                     :class="buttonVariants({ variant: 'default' })"
                 >
-                    Tambah Team
+                    Tambah Program
                 </Link>
             </div>
         </div>
     </template>
-    <AlertDialog :open="!!enrollmentToDelete">
+    <AlertDialog :open="!!programToDelete">
         <AlertDialogContent>
             <AlertDialogHeader>
                 <AlertDialogTitle>
@@ -186,7 +186,7 @@ const destroy = () => {
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel @click="enrollmentToDelete = null">
+                <AlertDialogCancel @click="programToDelete = null">
                     Batal
                 </AlertDialogCancel>
                 <AlertDialogAction @click="destroy">Hapus</AlertDialogAction>

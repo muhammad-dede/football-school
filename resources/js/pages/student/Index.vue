@@ -165,14 +165,14 @@ const setLabelFoot = (foot) => {
                                 />
                                 <Badge
                                     :variant="
-                                        item.enrollment?.is_active
+                                        item.current_program
                                             ? 'default'
                                             : 'destructive'
                                     "
                                     class="px-3 py-2 rounded-full h-fit"
                                 >
                                     {{
-                                        item.enrollment?.is_active
+                                        item.current_program
                                             ? "Aktif"
                                             : "Tidak Aktif"
                                     }}

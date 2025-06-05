@@ -19,10 +19,12 @@ const props = defineProps({
 });
 
 const getAttendance = (trainingId, studentId) => {
-    const attendance = props.trainings
-        ?.find((t) => t.id === trainingId)
-        ?.attendances?.find((a) => a.student_id === studentId);
-    return attendance;
+    return (
+        props.trainings
+            ?.find((t) => t.id === trainingId)
+            ?.attendances?.find((a) => a.student_id === studentId)
+            ?.attendance ?? null
+    );
 };
 
 const getAttendanceLabel = (attendance) => {
@@ -107,7 +109,6 @@ const getAttendanceVariant = (attendance) => {
                             {{
                                 getAttendanceLabel(
                                     getAttendance(item.id, student.id)
-                                        ?.attendance
                                 )
                             }}
                         </Badge>

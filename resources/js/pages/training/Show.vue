@@ -26,7 +26,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TabTraining from "./show/TabTraining.vue";
-import TabAttendance from "./show/TabAttendance.vue";
+import TabAttendances from "./show/TabAttendances.vue";
 
 const { can } = usePermissions();
 
@@ -92,15 +92,15 @@ const destroy = () => {
             <Tabs default-value="training" class="w-full">
                 <TabsList class="grid w-full grid-cols-2">
                     <TabsTrigger value="training">Pelatihan</TabsTrigger>
-                    <TabsTrigger value="attendance">
+                    <TabsTrigger value="attendances">
                         Kehadiran Siswa
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="training">
                     <TabTraining :training="training" />
                 </TabsContent>
-                <TabsContent value="attendance">
-                    <TabAttendance
+                <TabsContent value="attendances">
+                    <TabAttendances
                         :training="training"
                         :attendances="attendances"
                         :students="students"
