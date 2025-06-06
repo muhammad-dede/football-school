@@ -76,6 +76,9 @@ class UserSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'match-event-delete'],
             ['guard_name' => 'web', 'name' => 'match-event-show'],
             ['guard_name' => 'web', 'name' => 'match-event-attendance'],
+            // Report
+            ['guard_name' => 'web', 'name' => 'report-student-index'],
+            ['guard_name' => 'web', 'name' => 'report-student-score'],
         ];
 
         foreach ($permissions as $key => $value) {
@@ -143,6 +146,9 @@ class UserSeeder extends Seeder
                 $role->givePermissionTo('match-event-delete');
                 $role->givePermissionTo('match-event-show');
                 $role->givePermissionTo('match-event-attendance');
+                // Report
+                $role->givePermissionTo('report-student-index');
+                $role->givePermissionTo('report-student-score');
             }
             if ($role->name === 'Leader') {
                 // Dashboard

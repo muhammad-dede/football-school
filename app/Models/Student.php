@@ -36,4 +36,14 @@ class Student extends Model
     {
         return $this->hasMany(TrainingAttendance::class, 'student_id', 'id');
     }
+
+    public function matchEventParticipants()
+    {
+        return $this->hasMany(MatchEventParticipant::class, 'student_id', 'id');
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(ReportStudent::class, 'student_id', 'id');
+    }
 }
